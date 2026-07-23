@@ -46,7 +46,7 @@ function Dashboard() {
 
       try {
         const { data } = await axios.get(
-          "http://localhost:5000/api/dashboard/latest",
+          "https://ai-resume-analyzer-57fk.onrender.com/api/dashboard/latest",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -109,7 +109,7 @@ function Dashboard() {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/ai/analyze",
+        `${import.meta.env.VITE_API_URL}/api/ai/analyze`,
         {
           resumeText,
         },

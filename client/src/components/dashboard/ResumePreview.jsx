@@ -27,9 +27,9 @@ function ResumePreview({ file }) {
 
   const pdfUrl =
     typeof file === "string"
-      ? `http://localhost:5000${file}`
+      ? `https://ai-resume-analyzer-57fk.onrender.com${file}`
       : file.filePath
-      ? `http://localhost:5000${file.filePath}`
+      ? `http://https://ai-resume-analyzer-57fk.onrender.com${file.filePath}`
       : URL.createObjectURL(file);
 
   return (

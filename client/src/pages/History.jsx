@@ -15,7 +15,7 @@ function History() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/history", {
+      const res = await axios.get("https://ai-resume-analyzer-57fk.onrender.com/api/history", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -45,7 +45,7 @@ function History() {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(`http://localhost:5000/api/history/${id}`, {
+      await axios.delete(`https://ai-resume-analyzer-57fk.onrender.com/api/history/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
