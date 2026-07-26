@@ -36,44 +36,37 @@ function UploadBox() {
 
   const handleUpload = async () => {
     if (!file) {
-      toast.warning("Please select a PDF file.");
+      toast.warning("Please upload resume.");
       return;
     }
 
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       const formData = new FormData();
       formData.append("resume", file);
       formData.append("jobDescription", jobDescription);
 
       const token = localStorage.getItem("token");
 
-      const response = await api.post("/upload", formData, {
+      const { data } = await api.post("/upload", formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
 
-      setAnalysis(response.data);
+      toast.success("Resume analyzed successfully.");
 
-      toast.success("Resume analyzed successfully!");
+      navigate("/dashboard", {
+        state: {
+          ...data.analysis,
+          file,
+        },
+      });
+    } catch (err) {
+      console.error(err);
 
-      setTimeout(() => {
-        navigate("/dashboard", {
-          state: {
-            ...response.data,
-            file,
-          },
-        });
-      }, 1000);
-    } catch (error) {
-      console.error(error);
-
-      toast.error(
-        error.response?.data?.message || "Failed to analyze resume."
-      );
+      toast.error(err.response?.data?.message || "Resume analysis failed.");
     } finally {
       setLoading(false);
     }
@@ -102,9 +95,7 @@ function UploadBox() {
         <label className="border-2 border-dashed border-blue-400 rounded-xl p-8 sm:p-12 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition">
           <FaCloudUploadAlt className="text-6xl text-blue-600 mb-4" />
 
-          <h2 className="text-xl sm:text-2xl font-bold">
-            Upload Resume
-          </h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Upload Resume</h2>
 
           <p className="text-gray-500 text-center mt-2">
             Only PDF files are supported
@@ -120,14 +111,11 @@ function UploadBox() {
       ) : (
         <>
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gray-100 rounded-xl p-5">
-
             <div className="flex items-center gap-4">
               <FaFilePdf className="text-red-500 text-4xl flex-shrink-0" />
 
               <div>
-                <h3 className="font-semibold break-all">
-                  {file.name}
-                </h3>
+                <h3 className="font-semibold break-all">{file.name}</h3>
 
                 <p className="text-gray-500 text-sm">
                   {(file.size / 1024).toFixed(2)} KB
@@ -141,7 +129,6 @@ function UploadBox() {
             >
               <FaTrash size={22} />
             </button>
-
           </div>
 
           <div className="mt-6">
