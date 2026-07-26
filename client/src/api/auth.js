@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://ai-resume-analyzer-zf65.onrender.com",
+  baseURL: "https://ai-resume-analyzer-zf65.onrender.com/api/auth",
 });
 
 export const registerUser = (data) => API.post("/register", data);
