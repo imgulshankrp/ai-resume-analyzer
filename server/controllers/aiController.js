@@ -1,11 +1,15 @@
-const { analyzeResume } = require("../services/geminiService");
+const {
+  analyzeResume,
+  analyzeJobDescription,
+  chatWithResumeAI,
+} = require("../services/geminiService");
+
+/* =====================================================
+   Resume Analysis
+===================================================== */
 
 const analyzeWithAI = async (req, res) => {
-  console.log("AI endpoint hit");
-  console.log(req.body);
-
   try {
-    // existing code...
     const { resumeText } = req.body;
 
     if (!resumeText) {
@@ -17,15 +21,82 @@ const analyzeWithAI = async (req, res) => {
 
     const result = await analyzeResume(resumeText);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       result,
     });
   } catch (error) {
-    console.error("AI Controller Error:");
-    console.error(error);
+    console.error("Resume AI Error:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/* =====================================================
+   Job Description Matcher
+===================================================== */
+
+const analyzeJD = async (req, res) => {
+  try {
+    const { resumeText, jobDescription } = req.body;
+
+    if (!resumeText || !jobDescription) {
+      return res.status(400).json({
+        success: false,
+        message: "Resume text and Job Description are required.",
+      });
+    }
+
+    const result = await analyzeJobDescription(
+      resumeText,
+      jobDescription
+    );
+
+    return res.status(200).json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    console.error("JD Match Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/* =====================================================
+   Resume Chat Assistant
+===================================================== */
+
+const chatWithAI = async (req, res) => {
+  try {
+    const { resumeText, question } = req.body;
+
+    if (!resumeText || !question) {
+      return res.status(400).json({
+        success: false,
+        message: "Resume text and question are required.",
+      });
+    }
+
+    const answer = await chatWithResumeAI(
+      resumeText,
+      question
+    );
+
+    return res.status(200).json({
+      success: true,
+      answer,
+    });
+  } catch (error) {
+    console.error("Resume Chat Error:", error);
+
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -34,4 +105,6 @@ const analyzeWithAI = async (req, res) => {
 
 module.exports = {
   analyzeWithAI,
+  analyzeJD,
+  chatWithAI,
 };

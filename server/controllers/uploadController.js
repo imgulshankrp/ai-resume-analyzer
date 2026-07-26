@@ -1,6 +1,11 @@
 const fs = require("fs");
 const pdf = require("pdf-parse");
+
 const Resume = require("../models/Resume");
+
+const {
+  analyzeResume,
+} = require("../services/resumeAnalyzer");
 
 const uploadResume = async (req, res) => {
   try {
@@ -12,156 +17,96 @@ const uploadResume = async (req, res) => {
     }
 
     // Read uploaded PDF
-    const dataBuffer = fs.readFileSync(req.file.path);
+    const buffer = fs.readFileSync(req.file.path);
 
-    // Extract text
-    const data = await pdf(dataBuffer);
+    // Extract PDF text
+    const pdfData = await pdf(buffer);
 
-    const resumeText = data.text.toLowerCase();
-    const jobDescription = (req.body.jobDescription || "").toLowerCase();
+    const resumeText = pdfData.text;
 
-    const skills = [
-      "html",
-      "css",
-      "javascript",
-      "typescript",
-      "react",
-      "nextjs",
-      "node",
-      "express",
-      "mongodb",
-      "mysql",
-      "sql",
-      "python",
-      "java",
-      "c",
-      "c++",
-      "git",
-      "github",
-      "docker",
-      "aws",
-      "tailwind",
-      "bootstrap",
-      "redux",
-      "firebase",
-      "api",
-      "rest",
-      "graphql",
-    ];
+    const jobDescription =
+      req.body.jobDescription || "";
 
-    // Resume Skills
-    const foundSkills = skills.filter((skill) =>
-      resumeText.includes(skill)
+    // Analyze Resume
+    const analysis = analyzeResume(
+      resumeText,
+      jobDescription
     );
 
-    // JD Skills
-    const jdSkills = skills.filter((skill) =>
-      jobDescription.includes(skill)
-    );
+    // Save analysis to MongoDB
+    const savedResume = await Resume.create({
+      user: req.user._id,
 
-    // Matching Skills
-    const matchedSkills = jdSkills.filter((skill) =>
-      foundSkills.includes(skill)
-    );
+      fileName: req.file.originalname,
 
-    // Missing Skills
-    const missingSkills = jdSkills.filter(
-      (skill) => !foundSkills.includes(skill)
-    );
+      fileSize: req.file.size,
 
-    // Job Match %
-    const jdMatch =
-      jdSkills.length > 0
-        ? Math.round((matchedSkills.length / jdSkills.length) * 100)
-        : 0;
+      filePath: `/uploads/${req.file.filename}`,
 
-    // ATS Score
-    let score = 0;
+      score: analysis.score,
 
-    if (foundSkills.length >= 10) score += 40;
-    else if (foundSkills.length >= 5) score += 30;
-    else if (foundSkills.length >= 2) score += 20;
-    else score += 10;
+      jobMatch: analysis.jobMatch,
 
-    if (resumeText.includes("project")) score += 15;
-    if (resumeText.includes("education")) score += 15;
-    if (resumeText.includes("experience")) score += 15;
-    if (resumeText.includes("certification")) score += 10;
-    if (resumeText.includes("github")) score += 5;
+      skills: analysis.skills,
 
-    if (score > 100) score = 100;
+      missingSkills:
+        analysis.missingSkills,
 
-    // Suggestions
-    const suggestions = [];
+      suggestions:
+        analysis.suggestions,
 
-    if (!resumeText.includes("projects")) {
-      suggestions.push("Add Projects section.");
+      summary: analysis.summary,
+
+      extractedText:
+        analysis.extractedText,
+    });
+        // Delete uploaded file after processing
+    if (fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
     }
 
-    if (!resumeText.includes("education")) {
-      suggestions.push("Add Education section.");
-    }
-
-    if (!resumeText.includes("skills")) {
-      suggestions.push("Add Skills section.");
-    }
-
-    if (!resumeText.includes("experience")) {
-      suggestions.push("Add Experience section.");
-    }
-
-    // Resume Summary
-    const summary =
-      data.text.length > 350
-        ? data.text.substring(0, 350) + "..."
-        : data.text;
-
-    // Save in MongoDB
-   const savedResume = await Resume.create({
-  user: req.user._id,
-
-  fileName: req.file.originalname,
-  fileSize: req.file.size,
-  filePath: `/uploads/${req.file.filename}`,
-
-  score,
-  jobMatch: jdMatch,
-
-  skills: foundSkills,
-  missingSkills,
-  suggestions,
-
-  summary,
-  extractedText: data.text,
-});
-
-    // Send Response
-    res.status(200).json({
+    // Send response
+    return res.status(200).json({
       success: true,
       message: "Resume analyzed successfully.",
 
       id: savedResume._id,
+
       filePath: savedResume.filePath,
 
-      score,
-      jobMatch: jdMatch,
-      skills: foundSkills,
-      summary,
-      missingSkills,
-      suggestions,
+      score: analysis.score,
 
-      // Extra fields
-      foundSkills,
-      jdMatch,
-      text: data.text,
-     
+      jobMatch: analysis.jobMatch,
+
+      skills: analysis.skills,
+
+      foundSkills: analysis.foundSkills,
+
+      missingSkills: analysis.missingSkills,
+
+      suggestions: analysis.suggestions,
+
+      summary: analysis.summary,
+
+      text: analysis.extractedText,
     });
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    // Delete uploaded file even if an error occurs
+    if (
+      req.file &&
+      req.file.path &&
+      fs.existsSync(req.file.path)
+    ) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    return res.status(500).json({
       success: false,
-      message: error.message,
+      message:
+        error.message ||
+        "Resume analysis failed.",
     });
   }
 };

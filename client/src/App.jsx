@@ -8,6 +8,7 @@ import History from "./pages/History";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+import CompareResumes from "./pages/CompareResumes";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -60,6 +61,15 @@ function App() {
         element={
           <ProtectedRoute>
             <History />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/compare"
+        element={
+          <ProtectedRoute>
+            <CompareResumes />
           </ProtectedRoute>
         }
       />
