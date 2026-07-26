@@ -24,7 +24,7 @@ function ResumePreview({ file }) {
     );
   }
 
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const BASE_URL = import.meta.env.VITE_API_URL || "https://ai-resume-analyzer-zf65.onrender.com";
 
   const pdfUrl =
     typeof file === "string"
