@@ -1,9 +1,15 @@
 import axios from "axios";
 
-const API = axios.create({
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+export default api;
+
+export const authAPI = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api/auth`,
 });
 
-export const registerUser = (data) => API.post("/register", data);
+export const registerUser = (data) => authAPI.post("/register", data);
 
-export const loginUser = (data) => API.post("/login", data);
+export const loginUser = (data) => authAPI.post("/login", data);
