@@ -17,9 +17,10 @@ import AIAnalysisCard from "../components/dashboard/AIAnalysisCard";
 import StatsCards from "../components/dashboard/StatsCards";
 import JDMatcher from "../components/dashboard/JDMatcher";
 import ResumeChat from "../components/dashboard/ResumeChat";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 import { API_URL } from "../config";
-
+import { toast } from "react-toastify";
 function Dashboard() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -79,8 +80,8 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center text-2xl font-semibold">
-        Loading Dashboard...
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <LoadingSpinner text="Loading Dashboard..." />
       </div>
     );
   }
@@ -114,7 +115,7 @@ function Dashboard() {
         analysis?.extractedText || analysis?.text || analysis?.resumeText || "";
 
       if (!resumeText) {
-        alert("Resume text not found. Please upload the resume again.");
+        toast.warning("Resume text not found. Please upload the resume again.");
         return;
       }
 
@@ -131,11 +132,14 @@ function Dashboard() {
         },
       );
 
+      // Save AI result
       setAiResult(response.data.result);
+
+      toast.success("AI analysis completed successfully!");
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Unable to analyze resume.");
+      toast.error(error.response?.data?.message || "Unable to analyze resume.");
     } finally {
       setLoadingAI(false);
     }
@@ -427,97 +431,237 @@ function Dashboard() {
 
   return (
     <motion.div
-      className="max-w-7xl mx-auto p-8 space-y-8"
+      className="
+min-h-screen
+bg-gradient-to-br
+from-slate-100
+via-blue-50
+to-indigo-100
+max-w-7xl
+mx-auto
+p-8
+space-y-8
+"
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
       {/* Top Header */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">
-            Welcome {user?.name || "User"} 👋
-          </h1>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 p-8 text-white shadow-2xl">
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
 
-          <p className="text-gray-500">AI Resume Analyzer Dashboard</p>
+          <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold">
+                Welcome back, {user?.name || "User"} 👋
+              </h1>
+
+              <p className="mt-2 text-blue-100 text-lg">
+                Analyze, improve and compare your resume with AI.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="text-4xl sm:text-5xl font-bold">{score}%</div>
+
+              <div className="text-blue-100">ATS Score</div>
+            </div>
+          </div>
         </div>
 
-        <div className="flex gap-3 flex-wrap">
-          <button
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+          <motion.button
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0px 10px 25px rgba(147,51,234,0.35)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
             onClick={handleAIAnalysis}
             disabled={loadingAI}
-            className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300"
           >
-            {loadingAI ? "Analyzing..." : "🤖 Analyze with AI"}
-          </button>
+            {loadingAI ? "⏳ Analyzing..." : "🤖 Analyze with AI"}
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0px 10px 25px rgba(37,99,235,0.35)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
             onClick={downloadReport}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+            className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-xl transition-all duration-300"
           >
             📄 Download Report
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0px 10px 25px rgba(22,163,74,0.35)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
             onClick={() => navigate("/compare")}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+            className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-xl transition-all duration-300"
           >
             📑 Compare Resumes
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0px 10px 25px rgba(239,68,68,0.35)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
             onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg"
+            className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-xl transition-all duration-300"
           >
-            Logout
-          </button>
+            🚪 Logout
+          </motion.button>
         </div>
       </div>
 
-      <Header />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Header />
+      </motion.div>
 
-      <StatsCards />
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <StatsCards />
+      </motion.div>
 
-      <AnalyticsChart
-        score={score}
-        jobMatch={jobMatch}
-        skills={skills}
-        missingSkills={missingSkills}
-        suggestions={suggestions}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <AnalyticsChart
+          score={score}
+          jobMatch={jobMatch}
+          skills={skills}
+          missingSkills={missingSkills}
+          suggestions={suggestions}
+        />
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <ScoreCard score={score} />
-        <ResumePreview file={file} />
-        <JobMatchCard jobMatch={jobMatch} />
-        <SummaryCard summary={summary} />
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <ScoreCard score={score} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.35 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <ResumePreview file={file} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <JobMatchCard jobMatch={jobMatch} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.45 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <SummaryCard summary={summary} />
+        </motion.div>
       </div>
 
-      <SkillsCard skills={skills} />
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        whileHover={{ scale: 1.01 }}
+      >
+        <SkillsCard skills={skills} />
+      </motion.div>
 
-      <MissingSkillsCard missingSkills={missingSkills} />
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55 }}
+        whileHover={{ scale: 1.01 }}
+      >
+        <MissingSkillsCard missingSkills={missingSkills} />
+      </motion.div>
 
-      <SuggestionsCard suggestions={suggestions} />
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        whileHover={{ scale: 1.01 }}
+      >
+        <SuggestionsCard suggestions={suggestions} />
+      </motion.div>
 
-      {aiResult && <AIAnalysisCard data={aiResult} />}
+      {aiResult && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.65 }}
+        >
+          <AIAnalysisCard data={aiResult} />
+        </motion.div>
+      )}
 
-      <JDMatcher
-        resumeText={
-          analysis?.extractedText ||
-          analysis?.resumeText ||
-          analysis?.text ||
-          ""
-        }
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+      >
+        <JDMatcher
+          resumeText={
+            analysis?.extractedText ||
+            analysis?.resumeText ||
+            analysis?.text ||
+            ""
+          }
+        />
+      </motion.div>
 
-      <ResumeChat
-        resumeText={
-          analysis?.extractedText ||
-          analysis?.resumeText ||
-          analysis?.text ||
-          ""
-        }
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.75 }}
+      >
+        <ResumeChat
+          resumeText={
+            analysis?.extractedText ||
+            analysis?.resumeText ||
+            analysis?.text ||
+            ""
+          }
+        />
+      </motion.div>
     </motion.div>
   );
 }

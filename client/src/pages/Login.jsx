@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { loginUser } from "../api/auth";
 
 export default function Login() {
@@ -27,12 +28,22 @@ export default function Login() {
       const { data } = await loginUser(form);
 
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
+      );
 
-      alert("Login Successful!");
-      navigate("/dashboard");
+      toast.success("Login successful!");
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
+
     } catch (err) {
-      alert(err.response?.data?.message || "Invalid email or password");
+      toast.error(
+        err.response?.data?.message ||
+          "Invalid email or password"
+      );
     } finally {
       setLoading(false);
     }
@@ -71,14 +82,17 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700"
+          className="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700 disabled:opacity-60"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
 
         <p className="text-center mt-4">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-blue-600">
+          <Link
+            to="/signup"
+            className="text-blue-600 hover:underline"
+          >
             Sign Up
           </Link>
         </p>

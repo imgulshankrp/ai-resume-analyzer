@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { registerUser } from "../api/auth";
 
 export default function Signup() {
@@ -28,13 +29,21 @@ export default function Signup() {
       const { data } = await registerUser(form);
 
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
+      );
 
-      alert("Registration Successful!");
-      navigate("/dashboard");
+      toast.success("Account created successfully!");
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
+
     } catch (err) {
-      alert(
-        err.response?.data?.message || "Registration failed"
+      toast.error(
+        err.response?.data?.message ||
+          "Registration failed"
       );
     } finally {
       setLoading(false);
@@ -84,14 +93,17 @@ export default function Signup() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700"
+          className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 disabled:opacity-60"
         >
-          {loading ? "Creating..." : "Sign Up"}
+          {loading ? "Creating Account..." : "Sign Up"}
         </button>
 
         <p className="text-center mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600">
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline"
+          >
             Login
           </Link>
         </p>

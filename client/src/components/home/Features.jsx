@@ -1,62 +1,114 @@
-import { FaChartLine, FaFileAlt, FaLightbulb, FaUserCheck } from "react-icons/fa";
+import { motion } from "framer-motion";
+import {
+  FaChartLine,
+  FaFileAlt,
+  FaLightbulb,
+  FaUserCheck,
+} from "react-icons/fa";
 
 const features = [
   {
-    icon: <FaChartLine className="text-4xl text-blue-600" />,
+    icon: <FaChartLine />,
+    color: "from-blue-500 to-cyan-500",
     title: "ATS Score",
     description:
-      "Get an ATS compatibility score and understand how recruiters' systems view your resume.",
+      "Measure ATS compatibility and discover exactly how recruiters' systems evaluate your resume.",
   },
   {
-    icon: <FaFileAlt className="text-4xl text-green-600" />,
+    icon: <FaFileAlt />,
+    color: "from-green-500 to-emerald-500",
     title: "Resume Analysis",
     description:
-      "Analyze your resume for formatting, keywords, readability, and structure.",
+      "Analyze formatting, keywords, readability, structure, and overall resume quality in seconds.",
   },
   {
-    icon: <FaLightbulb className="text-4xl text-yellow-500" />,
-    title: "Smart Suggestions",
+    icon: <FaLightbulb />,
+    color: "from-yellow-400 to-orange-500",
+    title: "AI Suggestions",
     description:
-      "Receive personalized suggestions to improve your resume and increase interview chances.",
+      "Receive intelligent recommendations to improve your resume and maximize interview opportunities.",
   },
   {
-    icon: <FaUserCheck className="text-4xl text-purple-600" />,
+    icon: <FaUserCheck />,
+    color: "from-purple-500 to-pink-500",
     title: "Skill Detection",
     description:
-      "Automatically detect technical and soft skills from your uploaded resume.",
+      "Automatically identify technical and soft skills to highlight your strongest qualifications.",
   },
 ];
 
 function Features() {
   return (
-    <section id="features" className="py-20 bg-gray-50">
+    <section
+      id="features"
+      className="py-24 bg-gradient-to-b from-gray-50 to-white"
+    >
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center text-gray-800">
-          Why Choose Resume Analyzer?
-        </h2>
 
-        <p className="text-center text-gray-600 mt-4 max-w-2xl mx-auto">
-          Everything you need to build a stronger, ATS-friendly resume.
-        </p>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <span className="text-blue-600 font-semibold uppercase tracking-widest">
+            FEATURES
+          </span>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
+            Everything You Need
+          </h2>
+
+          <p className="mt-6 text-gray-600 text-lg max-w-3xl mx-auto">
+            Our AI-powered platform helps you build stronger resumes,
+            improve ATS compatibility, and increase your chances of
+            landing interviews.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-20">
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-white rounded-2xl shadow-lg p-6 hover:-translate-y-2 hover:shadow-xl transition duration-300"
+              initial={{
+                opacity: 0,
+                y: 40,
+              }}
+              whileInView={{
+                opacity: 1,
+                y: 0,
+              }}
+              viewport={{ once: true }}
+              transition={{
+                delay: index * 0.15,
+              }}
+              whileHover={{
+                y: -10,
+                scale: 1.03,
+              }}
+              className="bg-white rounded-3xl shadow-lg hover:shadow-2xl p-8 transition-all duration-300 border border-gray-100"
             >
-              <div className="mb-5">{feature.icon}</div>
 
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
+              <div
+                className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color}
+                flex items-center justify-center text-white text-3xl shadow-lg`}
+              >
+                {feature.icon}
+              </div>
+
+              <h3 className="mt-8 text-xl sm:text-2xl font-bold text-gray-900">
                 {feature.title}
               </h3>
 
-              <p className="text-gray-600 text-sm leading-7">
+              <p className="mt-4 text-gray-600 leading-8">
                 {feature.description}
               </p>
-            </div>
+
+            </motion.div>
           ))}
         </div>
+
       </div>
     </section>
   );

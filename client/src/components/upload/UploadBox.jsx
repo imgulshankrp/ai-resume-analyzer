@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { FaCloudUploadAlt, FaFilePdf, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../../services/api";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 function UploadBox() {
   const [file, setFile] = useState(null);
@@ -17,21 +20,23 @@ function UploadBox() {
     if (!selectedFile) return;
 
     if (selectedFile.type !== "application/pdf") {
-      alert("Please upload PDF file only.");
+      toast.error("Please upload a PDF file only.");
       return;
     }
 
     setFile(selectedFile);
+    toast.success("Resume selected successfully.");
   };
 
   const removeFile = () => {
     setFile(null);
     setAnalysis(null);
+    toast.info("Resume removed.");
   };
 
   const handleUpload = async () => {
     if (!file) {
-      alert("Please select a PDF.");
+      toast.warning("Please select a PDF file.");
       return;
     }
 
@@ -53,29 +58,57 @@ function UploadBox() {
 
       setAnalysis(response.data);
 
-      navigate("/dashboard", {
-        state: {
-          ...response.data,
-          file,
-        },
-      });
+      toast.success("Resume analyzed successfully!");
+
+      setTimeout(() => {
+        navigate("/dashboard", {
+          state: {
+            ...response.data,
+            file,
+          },
+        });
+      }, 1000);
     } catch (error) {
       console.error(error);
-      alert("Upload Failed!");
+
+      toast.error(
+        error.response?.data?.message || "Failed to analyze resume."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-3xl w-full mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8"
+      >
+        <LoadingSpinner text="Analyzing your resume..." />
+      </motion.div>
+    );
+  }
+
   return (
-    <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+    <motion.div
+      initial={{ opacity: 0, y: 25 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-3xl w-full mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8"
+    >
       {!file ? (
-        <label className="border-2 border-dashed border-blue-400 rounded-xl p-12 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition">
+        <label className="border-2 border-dashed border-blue-400 rounded-xl p-8 sm:p-12 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition">
           <FaCloudUploadAlt className="text-6xl text-blue-600 mb-4" />
 
-          <h2 className="text-2xl font-bold">Upload Resume</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">
+            Upload Resume
+          </h2>
 
-          <p className="text-gray-500 mt-2">Only PDF files are supported</p>
+          <p className="text-gray-500 text-center mt-2">
+            Only PDF files are supported
+          </p>
 
           <input
             type="file"
@@ -86,12 +119,15 @@ function UploadBox() {
         </label>
       ) : (
         <>
-          <div className="flex justify-between items-center bg-gray-100 rounded-xl p-5">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gray-100 rounded-xl p-5">
+
             <div className="flex items-center gap-4">
-              <FaFilePdf className="text-red-500 text-4xl" />
+              <FaFilePdf className="text-red-500 text-4xl flex-shrink-0" />
 
               <div>
-                <h3 className="font-semibold">{file.name}</h3>
+                <h3 className="font-semibold break-all">
+                  {file.name}
+                </h3>
 
                 <p className="text-gray-500 text-sm">
                   {(file.size / 1024).toFixed(2)} KB
@@ -101,10 +137,11 @@ function UploadBox() {
 
             <button
               onClick={removeFile}
-              className="text-red-500 hover:text-red-700"
+              className="text-red-500 hover:text-red-700 self-end sm:self-auto"
             >
               <FaTrash size={22} />
             </button>
+
           </div>
 
           <div className="mt-6">
@@ -113,24 +150,24 @@ function UploadBox() {
             </label>
 
             <textarea
-              rows="8"
+              rows={8}
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
               placeholder="Paste the Job Description here..."
-              className="w-full border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border rounded-lg p-4 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
 
           <button
             onClick={handleUpload}
             disabled={loading}
-            className="w-full mt-8 bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition"
+            className="w-full mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Analyzing..." : "Analyze Resume"}
+            {loading ? "🔍 Analyzing Resume..." : "Analyze Resume"}
           </button>
         </>
       )}
-    </div>
+    </motion.div>
   );
 }
 

@@ -22,60 +22,62 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300">
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/upload"
-        element={
-          <ProtectedRoute>
-            <Upload />
-          </ProtectedRoute>
-        }
-      />
+        {/* Protected Routes */}
+        <Route
+          path="/upload"
+          element={
+            <ProtectedRoute>
+              <Upload />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/analysis"
-        element={
-          <ProtectedRoute>
-            <Analysis />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/analysis"
+          element={
+            <ProtectedRoute>
+              <Analysis />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/history"
-        element={
-          <ProtectedRoute>
-            <History />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/compare"
-        element={
-          <ProtectedRoute>
-            <CompareResumes />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route
+          path="/compare"
+          element={
+            <ProtectedRoute>
+              <CompareResumes />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
   );
 }
 
