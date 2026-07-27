@@ -18,7 +18,7 @@ function StatsCards() {
         const token = localStorage.getItem("token");
 
         const { data } = await axios.get(
-          `${API_URL}/api/history/stats`,
+          `${API_URL}/history/stats`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

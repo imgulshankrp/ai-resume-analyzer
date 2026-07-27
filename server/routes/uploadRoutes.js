@@ -9,8 +9,7 @@ const {
 const router = express.Router();
 
 // Protected Upload Route
-router.post(
-  "/",
+router.post("/",
   protect,
   upload.single("resume"),
   uploadResume

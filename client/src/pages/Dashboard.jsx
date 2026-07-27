@@ -52,7 +52,7 @@ function Dashboard() {
       }
 
       try {
-        const { data } = await axios.get(`${API_URL}/api/dashboard/latest`, {
+        const { data } = await axios.get(`${API_URL}/dashboard/latest`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -120,7 +120,7 @@ function Dashboard() {
       }
 
       const response = await axios.post(
-        `${API_URL}/api/ai/analyze`,
+        `${API_URL}/ai/analyze`,
         {
           resumeText,
         },
