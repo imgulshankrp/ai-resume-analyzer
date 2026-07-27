@@ -20,7 +20,7 @@ function ResumePreview({ file }) {
   }
 
   const BACKEND_URL =
-    "https://ai-resume-analyzer-57fk.onrender.com";
+  "https://ai-resume-analyzer-zf65.onrender.com";
 
   let pdfUrl = "";
 
