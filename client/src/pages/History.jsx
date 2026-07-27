@@ -61,7 +61,7 @@ function History() {
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `${API_URL}/api/history/${selectedResume._id}`,
+        `${API_URL}/history/${selectedResume._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
