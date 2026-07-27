@@ -28,7 +28,7 @@ function JDMatcher({ resumeText }) {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        `${API_URL}/api/ai/jd-match`,
+        `${API_URL}/ai/jd-match`,
         {
           resumeText,
           jobDescription,

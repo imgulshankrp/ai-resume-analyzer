@@ -24,7 +24,7 @@ function History() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(`${API_URL}/api/history`, {
+      const res = await axios.get(`${API_URL}/history`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

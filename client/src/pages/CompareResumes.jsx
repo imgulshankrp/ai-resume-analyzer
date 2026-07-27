@@ -31,7 +31,7 @@ function CompareResumes() {
       formData.append("resume2", resume2);
 
       const { data } = await axios.post(
-        `${API_URL}/api/compare`,
+        `${API_URL}/compare`,
         formData,
         {
           headers: {
