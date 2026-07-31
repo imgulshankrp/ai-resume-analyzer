@@ -57,9 +57,9 @@ function UploadBox() {
 
       toast.success("Resume analyzed successfully.");
 
-      navigate("/dashboard", {
+      navigate("/analysis", {
         state: {
-          ...data.analysis,
+          analysis: data.analysis,
           file,
         },
       });

@@ -8,6 +8,15 @@ import {
 import { Doughnut } from "react-chartjs-2";
 import { motion } from "framer-motion";
 
+import {
+  HiChartBar,
+  HiCheckCircle,
+  HiExclamationTriangle,
+  HiSparkles,
+} from "react-icons/hi2";
+
+import Card from "../common/Card";
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function AnalyticsChart({
@@ -31,92 +40,171 @@ function AnalyticsChart({
           "#e5e7eb",
         ],
         borderWidth: 0,
-        cutout: "72%",
+        hoverOffset: 6,
+        cutout: "78%",
       },
     ],
   };
 
   const stats = [
     {
-      title: "ATS Score",
-      value: `${score}%`,
-      color: "bg-blue-500",
-    },
-    {
-      title: "JD Match",
+      title: "Job Match",
       value: `${jobMatch}%`,
-      color: "bg-green-500",
+      icon: HiChartBar,
+      gradient: "from-blue-500 to-cyan-500",
     },
     {
       title: "Skills",
       value: skills.length,
-      color: "bg-purple-500",
+      icon: HiCheckCircle,
+      gradient: "from-green-500 to-emerald-500",
     },
     {
       title: "Missing",
       value: missingSkills.length,
-      color: "bg-red-500",
+      icon: HiExclamationTriangle,
+      gradient: "from-red-500 to-orange-500",
     },
     {
       title: "Suggestions",
       value: suggestions.length,
-      color: "bg-yellow-500",
+      icon: HiSparkles,
+      gradient: "from-violet-500 to-fuchsia-500",
     },
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-3xl shadow-xl p-8"
+    <Card
+      className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
     >
-      <h2 className="text-3xl font-bold mb-8">
-        📊 Resume Analytics
-      </h2>
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45 }}
+      >
+        {/* Header */}
 
-      <div className="grid lg:grid-cols-2 gap-10">
+        <div className="mb-8 flex items-center justify-between">
 
-        <div className="flex justify-center items-center">
-          <div className="w-72 h-72">
-            <Doughnut
-              data={data}
-              options={{
-                plugins: {
-                  legend: {
-                    position: "bottom",
-                  },
-                },
-              }}
-            />
+          <div>
+
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Resume Analytics
+            </h2>
+
+            <p className="mt-1 text-slate-500 dark:text-slate-400">
+              AI generated performance overview
+            </p>
+
           </div>
+
+          <div className="rounded-xl bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+            Live Analysis
+          </div>
+
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-10 lg:grid-cols-2">
 
-          {stats.map((item) => (
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              key={item.title}
-              className="rounded-2xl bg-gray-50 border p-5 shadow-sm"
-            >
-              <div
-                className={`w-4 h-4 rounded-full ${item.color} mb-4`}
-              ></div>
+          {/* Doughnut Chart */}
 
-              <h3 className="text-gray-500 text-sm">
-                {item.title}
+          <div className="flex flex-col items-center justify-center">
+
+            <div className="relative h-72 w-72">
+
+              <Doughnut
+                data={data}
+                options={{
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      display: false,
+                    },
+                  },
+                }}
+              />
+
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+
+                <h2 className="text-5xl font-bold text-slate-900 dark:text-white">
+                  {score}%
+                </h2>
+
+                <p className="mt-2 text-slate-500 dark:text-slate-400">
+                  ATS Score
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* Right Side */}
+
+          <div>
+
+            <div className="grid grid-cols-2 gap-5">
+
+              {stats.map((item, index) => {
+                const Icon = item.icon;
+
+                return (
+                  <motion.div
+                    key={item.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: index * 0.08,
+                    }}
+                    whileHover={{
+                      y: -6,
+                    }}
+                    className="group rounded-2xl border border-slate-200 bg-slate-50 p-5 transition-all duration-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+                  >
+                    <div
+                      className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${item.gradient}`}
+                    >
+                      <Icon className="text-2xl text-white" />
+                    </div>
+
+                    <h3 className="mt-5 text-sm text-slate-500 dark:text-slate-400">
+                      {item.title}
+                    </h3>
+
+                    <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+                      {item.value}
+                    </p>
+                  </motion.div>
+                );
+              })}
+
+            </div>
+
+            {/* AI Insight */}
+
+            <div className="mt-8 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 p-5 dark:border-indigo-800 dark:from-indigo-950 dark:to-slate-900">
+
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                AI Insight
               </h3>
 
-              <p className="text-3xl font-bold mt-2">
-                {item.value}
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                {score >= 80
+                  ? "Excellent resume quality. Continue adding measurable achievements and relevant keywords."
+                  : score >= 60
+                  ? "Your resume is competitive. Adding more technical skills and quantified results can improve your ATS score."
+                  : "Your resume requires optimization. Focus on relevant skills, ATS-friendly formatting, and measurable accomplishments."}
               </p>
-            </motion.div>
-          ))}
+
+            </div>
+
+          </div>
 
         </div>
 
-      </div>
-    </motion.div>
+      </motion.div>
+    </Card>
   );
 }
 

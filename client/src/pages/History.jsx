@@ -15,6 +15,7 @@ function History() {
   // Delete Modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedResume, setSelectedResume] = useState(null);
+  const [showClearModal, setShowClearModal] = useState(false);
 
   useEffect(() => {
     fetchHistory();
@@ -60,17 +61,14 @@ function History() {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(
-        `${API_URL}/history/${selectedResume._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.delete(`${API_URL}/history/${selectedResume._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setResumes((prev) =>
-        prev.filter((resume) => resume._id !== selectedResume._id)
+        prev.filter((resume) => resume._id !== selectedResume._id),
       );
 
       closeDeleteModal();
@@ -85,42 +83,50 @@ function History() {
     }
   };
 
+  const handleClearHistory = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.delete(`${API_URL}/history/clear`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setResumes([]);
+      setShowClearModal(false);
+
+      alert("All resume history deleted successfully.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to clear resume history.");
+    }
+  };
+
   const filteredResumes = useMemo(() => {
     let data = [...resumes];
 
     if (searchTerm.trim()) {
       data = data.filter((resume) =>
-        resume.fileName
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        resume.fileName?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     switch (sortBy) {
       case "oldest":
-        data.sort(
-          (a, b) =>
-            new Date(a.createdAt) - new Date(b.createdAt)
-        );
+        data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
         break;
 
       case "highest":
-        data.sort(
-          (a, b) => (b.score || 0) - (a.score || 0)
-        );
+        data.sort((a, b) => (b.score || 0) - (a.score || 0));
         break;
 
       case "lowest":
-        data.sort(
-          (a, b) => (a.score || 0) - (b.score || 0)
-        );
+        data.sort((a, b) => (a.score || 0) - (b.score || 0));
         break;
 
       default:
-        data.sort(
-          (a, b) =>
-            new Date(b.createdAt) - new Date(a.createdAt)
-        );
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     return data;
@@ -133,7 +139,7 @@ function History() {
       </div>
     );
   }
-    return (
+  return (
     <div className="max-w-7xl mx-auto p-8">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-center gap-4 mb-8">
@@ -144,12 +150,21 @@ function History() {
           </p>
         </div>
 
-        <Link
-          to="/upload"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
-        >
-          + Analyze New Resume
-        </Link>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowClearModal(true)}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition"
+          >
+            🗑️ Clear All History
+          </button>
+
+          <Link
+            to="/upload"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
+          >
+            + Analyze New Resume
+          </Link>
+        </div>
       </div>
 
       {/* Search & Sort */}
@@ -192,9 +207,7 @@ function History() {
               transition={{ duration: 0.25 }}
               className="bg-white rounded-2xl shadow-lg hover:shadow-2xl p-6"
             >
-              <h2 className="text-xl font-bold truncate">
-                {resume.fileName}
-              </h2>
+              <h2 className="text-xl font-bold truncate">{resume.fileName}</h2>
 
               <div className="flex gap-2 mt-3 flex-wrap">
                 <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full">
@@ -207,7 +220,6 @@ function History() {
               </div>
 
               <div className="mt-6 space-y-3">
-
                 <div className="flex justify-between">
                   <span className="font-medium">ATS Score</span>
 
@@ -216,8 +228,8 @@ function History() {
                       resume.score >= 80
                         ? "text-green-600"
                         : resume.score >= 60
-                        ? "text-yellow-600"
-                        : "text-red-600"
+                          ? "text-yellow-600"
+                          : "text-red-600"
                     }`}
                   >
                     {resume.score || 0}%
@@ -251,11 +263,9 @@ function History() {
                 <p className="text-sm text-gray-500 pt-2">
                   {new Date(resume.createdAt).toLocaleString()}
                 </p>
-
               </div>
 
               <div className="grid grid-cols-2 gap-3 mt-6">
-
                 <Link
                   to="/dashboard"
                   state={{ analysis: resume }}
@@ -270,7 +280,6 @@ function History() {
                 >
                   Delete
                 </button>
-
               </div>
             </motion.div>
           ))}
@@ -280,24 +289,16 @@ function History() {
       {/* Delete Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-
           <div className="bg-white rounded-2xl p-8 w-96 shadow-2xl">
-
-            <h2 className="text-2xl font-bold mb-3">
-              Delete Resume
-            </h2>
+            <h2 className="text-2xl font-bold mb-3">Delete Resume</h2>
 
             <p className="text-gray-600">
               Are you sure you want to delete
-              <span className="font-semibold">
-                {" "}
-                {selectedResume?.fileName}
-              </span>
+              <span className="font-semibold"> {selectedResume?.fileName}</span>
               ?
             </p>
 
             <div className="flex justify-end gap-3 mt-8">
-
               <button
                 onClick={closeDeleteModal}
                 className="px-5 py-2 rounded-lg border hover:bg-gray-100"
@@ -311,11 +312,43 @@ function History() {
               >
                 Delete
               </button>
-
             </div>
-
           </div>
+        </div>
+      )}
 
+      {/* Clear All History Modal */}
+      {showClearModal && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-2xl p-8 w-96 shadow-2xl">
+            <h2 className="text-2xl font-bold mb-3 text-red-600">
+              Clear All History
+            </h2>
+
+            <p className="text-gray-600">
+              Are you sure you want to delete <b>all resume history</b>?
+              <br />
+              <span className="text-red-500 font-medium">
+                This action cannot be undone.
+              </span>
+            </p>
+
+            <div className="flex justify-end gap-3 mt-8">
+              <button
+                onClick={() => setShowClearModal(false)}
+                className="px-5 py-2 rounded-lg border hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleClearHistory}
+                className="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete All
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -2,15 +2,26 @@ export default function LoadingSpinner({
   text = "Processing...",
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-10">
-      <div className="w-14 h-14 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+    <div
+      className="flex flex-col items-center justify-center py-12"
+      role="status"
+      aria-live="polite"
+    >
+      {/* Spinner */}
+      <div className="relative">
+        <div className="w-14 h-14 rounded-full border-4 border-slate-200 dark:border-slate-700"></div>
 
-      <p className="mt-5 text-lg font-semibold text-gray-700">
+        <div className="absolute inset-0 w-14 h-14 rounded-full border-4 border-transparent border-t-blue-600 animate-spin"></div>
+      </div>
+
+      {/* Title */}
+      <h3 className="mt-6 text-lg font-semibold text-slate-800 dark:text-white">
         {text}
-      </p>
+      </h3>
 
-      <p className="text-gray-500 mt-2">
-        This may take a few seconds...
+      {/* Subtitle */}
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        This may take a few seconds. Please wait...
       </p>
     </div>
   );
