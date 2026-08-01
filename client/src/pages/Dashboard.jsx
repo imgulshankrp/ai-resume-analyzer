@@ -15,7 +15,7 @@ export default function Dashboard() {
   return (
     <MainLayout>
       <motion.div
-        className="max-w-7xl mx-auto space-y-8"
+        className="mx-auto w-full max-w-[1600px] space-y-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}

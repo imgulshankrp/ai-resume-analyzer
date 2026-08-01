@@ -1,20 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  HiOutlineBell,
-  HiOutlineEnvelope,
-  HiOutlineSparkles,
+  HiOutlineShieldCheck,
+  HiOutlineEye,
+  HiOutlineDocumentText,
   HiOutlineChartBar,
-  HiOutlineDevicePhoneMobile,
+  HiOutlineCloudArrowDown,
 } from "react-icons/hi2";
 
-export default function NotificationSection() {
+export default function PrivacySection() {
   const [settings, setSettings] = useState({
-    email: true,
-    analysis: true,
-    weekly: false,
-    push: true,
-    marketing: false,
+    publicProfile: false,
+    resumeVisibility: true,
+    analytics: true,
+    aiTraining: false,
   });
 
   const toggle = (key) => {
@@ -24,36 +23,34 @@ export default function NotificationSection() {
     });
   };
 
-  const notifications = [
+  const privacyItems = [
     {
-      key: "email",
-      title: "Email Notifications",
-      description: "Receive important updates in your inbox.",
-      icon: HiOutlineEnvelope,
+      key: "publicProfile",
+      title: "Public Profile",
+      description:
+        "Allow other users to discover your public profile.",
+      icon: HiOutlineEye,
     },
     {
-      key: "analysis",
-      title: "Resume Analysis",
-      description: "Get notified when AI finishes resume analysis.",
-      icon: HiOutlineSparkles,
+      key: "resumeVisibility",
+      title: "Resume Visibility",
+      description:
+        "Keep your uploaded resumes visible only to you.",
+      icon: HiOutlineDocumentText,
     },
     {
-      key: "weekly",
-      title: "Weekly Summary",
-      description: "Receive your weekly ResumeAI activity report.",
+      key: "analytics",
+      title: "Analytics Sharing",
+      description:
+        "Share anonymous usage data to improve ResumeAI.",
       icon: HiOutlineChartBar,
     },
     {
-      key: "push",
-      title: "Push Notifications",
-      description: "Receive browser notifications instantly.",
-      icon: HiOutlineDevicePhoneMobile,
-    },
-    {
-      key: "marketing",
-      title: "Product Updates",
-      description: "Receive news about new ResumeAI features.",
-      icon: HiOutlineBell,
+      key: "aiTraining",
+      title: "AI Training",
+      description:
+        "Allow anonymous resume data to improve AI responses.",
+      icon: HiOutlineShieldCheck,
     },
   ];
 
@@ -70,26 +67,26 @@ export default function NotificationSection() {
         <div>
 
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-            🔔 Notifications
+            🛡 Privacy
           </h2>
 
           <p className="mt-2 text-slate-500 dark:text-slate-400">
-            Choose which notifications you want to receive.
+            Control your privacy and data sharing preferences.
           </p>
 
         </div>
 
         <button className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700">
-          Save Preferences
+          Save Privacy
         </button>
 
       </div>
 
-      {/* Notification Cards */}
+      {/* Privacy Options */}
 
       <div className="mt-8 space-y-5">
 
-        {notifications.map((item) => {
+        {privacyItems.map((item) => {
           const Icon = item.icon;
 
           return (
@@ -142,6 +139,41 @@ export default function NotificationSection() {
         })}
 
       </div>
+
+      {/* Download Data */}
+
+      <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
+
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+
+          <div className="flex items-center gap-4">
+
+            <div className="rounded-2xl bg-blue-600 p-3 text-white">
+              <HiOutlineCloudArrowDown className="text-2xl" />
+            </div>
+
+            <div>
+
+              <h3 className="font-bold text-slate-900 dark:text-white">
+                Download Your Data
+              </h3>
+
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Export your profile, resumes, AI reports and settings.
+              </p>
+
+            </div>
+
+          </div>
+
+          <button className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white transition hover:scale-105">
+            Download Data
+          </button>
+
+        </div>
+
+      </div>
+
     </motion.div>
   );
 }

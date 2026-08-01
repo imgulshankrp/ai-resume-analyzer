@@ -9,7 +9,7 @@ import RecentActivity from "../components/profile/RecentActivity";
 export default function Profile() {
   return (
     <MainLayout>
-      <div className="space-y-8">
+      <div className="mx-auto max-w-7xl space-y-8">
 
         {/* Header */}
         <ProfileHeader />
@@ -17,19 +17,17 @@ export default function Profile() {
         {/* Stats */}
         <ProfileStats />
 
-        {/* Skills + Quick Actions */}
-        <div className="grid gap-8 xl:grid-cols-3">
+        {/* Skills */}
+        <ProfileSkills />
 
-          <div className="xl:col-span-2">
-            <ProfileSkills />
-          </div>
+        {/* Quick Actions + Recent Activity */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
           <QuickActions />
 
-        </div>
+          <RecentActivity />
 
-        {/* Activity */}
-        <RecentActivity />
+        </div>
 
       </div>
     </MainLayout>

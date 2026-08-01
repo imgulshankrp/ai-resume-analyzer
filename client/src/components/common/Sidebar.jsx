@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Upload,
@@ -61,26 +61,39 @@ const bottomItems = [
     path: "/settings",
     icon: Settings,
   },
-  {
-    name: "Logout",
-    path: "/login",
-    icon: LogOut,
-  },
 ];
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/login", { replace: true });
+  };
+
   return (
-    <aside className="w-72 min-h-screen border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between">
+    <aside className="flex min-h-screen w-72 flex-col justify-between border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+
+      {/* Top */}
+
       <div>
+
         {/* Logo */}
-        <div className="h-20 flex items-center justify-center border-b border-slate-200 dark:border-slate-800">
+
+        <div className="flex h-20 items-center justify-center border-b border-slate-200 dark:border-slate-800">
+
           <h1 className="text-2xl font-bold text-blue-600">
             ResumeAI
           </h1>
+
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2">
+
+        <nav className="space-y-2 p-4">
+
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -89,23 +102,28 @@ export default function Sidebar() {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                  `flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 ${
                     isActive
                       ? "bg-blue-600 text-white shadow-lg"
-                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                   }`
                 }
               >
                 <Icon size={20} />
+
                 <span>{item.name}</span>
               </NavLink>
             );
           })}
+
         </nav>
+
       </div>
 
-      {/* Bottom Section */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+      {/* Bottom */}
+
+      <div className="space-y-2 border-t border-slate-200 p-4 dark:border-slate-800">
+
         {bottomItems.map((item) => {
           const Icon = item.icon;
 
@@ -113,14 +131,34 @@ export default function Sidebar() {
             <NavLink
               key={item.name}
               to={item.path}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300"
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 ${
+                  isActive
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                }`
+              }
             >
               <Icon size={20} />
+
               <span>{item.name}</span>
             </NavLink>
           );
         })}
+
+        {/* Logout */}
+
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-600 transition-all duration-300 hover:bg-red-50 dark:hover:bg-red-900/20"
+        >
+          <LogOut size={20} />
+
+          <span>Logout</span>
+        </button>
+
       </div>
+
     </aside>
   );
 }

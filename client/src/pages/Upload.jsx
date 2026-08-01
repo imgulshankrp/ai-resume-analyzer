@@ -6,9 +6,9 @@ function Upload() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-gray-100 py-16 px-6">
+      <div className="min-h-screen bg-gray-100 dark:bg-slate-950 transition-colors duration-300 py-16 px-6">
 
-        <h1 className="text-4xl font-bold text-center mb-10">
+        <h1 className="text-4xl font-bold text-center mb-10 text-slate-900 dark:text-white">
           Upload Your Resume
         </h1>
 

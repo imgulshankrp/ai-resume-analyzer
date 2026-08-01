@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import { API_URL } from "../config";
 
 function History() {
+  const navigate = useNavigate();
+
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,6 +18,8 @@ function History() {
   // Delete Modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedResume, setSelectedResume] = useState(null);
+
+  // Clear History Modal
   const [showClearModal, setShowClearModal] = useState(false);
 
   useEffect(() => {
@@ -36,9 +41,9 @@ function History() {
       console.error(error);
 
       if (error.response?.status === 401) {
-        alert("Please login again.");
+        toast.error("Please login again.");
       } else {
-        alert("Failed to load resume history.");
+        toast.error("Failed to load resume history.");
       }
     } finally {
       setLoading(false);
@@ -68,17 +73,18 @@ function History() {
       });
 
       setResumes((prev) =>
-        prev.filter((resume) => resume._id !== selectedResume._id),
+        prev.filter((resume) => resume._id !== selectedResume._id)
       );
 
+      toast.success("Resume deleted successfully.");
       closeDeleteModal();
     } catch (error) {
       console.error(error);
 
       if (error.response?.status === 401) {
-        alert("Please login again.");
+        toast.error("Please login again.");
       } else {
-        alert("Failed to delete resume.");
+        toast.error("Failed to delete resume.");
       }
     }
   };
@@ -96,11 +102,20 @@ function History() {
       setResumes([]);
       setShowClearModal(false);
 
-      alert("All resume history deleted successfully.");
+      toast.success("All resume history deleted successfully.");
     } catch (error) {
       console.error(error);
-      alert("Failed to clear resume history.");
+      toast.error("Failed to clear resume history.");
     }
+  };
+
+  const handleViewAnalysis = (resume) => {
+    navigate("/analysis", {
+      state: {
+        analysis: resume,
+        file: null,
+      },
+    });
   };
 
   const filteredResumes = useMemo(() => {
@@ -108,7 +123,7 @@ function History() {
 
     if (searchTerm.trim()) {
       data = data.filter((resume) =>
-        resume.fileName?.toLowerCase().includes(searchTerm.toLowerCase()),
+        resume.fileName?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -134,225 +149,492 @@ function History() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-2xl font-bold">
-        Loading Resume History...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
+        <div className="text-2xl font-bold text-gray-700 dark:text-gray-200 animate-pulse">
+          Loading Resume History...
+        </div>
       </div>
     );
   }
-  return (
-    <div className="max-w-7xl mx-auto p-8">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-4xl font-bold">Resume History</h1>
-          <p className="text-gray-500 mt-2">
-            View and manage all your analyzed resumes
-          </p>
-        </div>
+    return (
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <div className="flex gap-3">
-          <button
-            onClick={() => setShowClearModal(true)}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition"
-          >
-            🗑️ Clear All History
-          </button>
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
 
-          <Link
-            to="/upload"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
-          >
-            + Analyze New Resume
-          </Link>
-        </div>
-      </div>
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              Resume History
+            </h1>
 
-      {/* Search & Sort */}
-      <div className="bg-white shadow rounded-2xl p-5 mb-8 flex flex-col md:flex-row gap-4 justify-between">
-        <input
-          type="text"
-          placeholder="🔍 Search by file name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border rounded-lg px-4 py-3 w-full md:w-96 focus:ring-2 focus:ring-blue-500 outline-none"
-        />
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              View and manage all your analyzed resumes.
+            </p>
+          </div>
 
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="border rounded-lg px-4 py-3"
-        >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="highest">Highest ATS</option>
-          <option value="lowest">Lowest ATS</option>
-        </select>
-      </div>
+          <div className="flex flex-wrap gap-3">
 
-      {/* Empty State */}
-      {filteredResumes.length === 0 ? (
-        <div className="bg-white shadow rounded-2xl py-20 text-center">
-          <h2 className="text-2xl font-bold">No Resume Found</h2>
-
-          <p className="text-gray-500 mt-2">
-            Try another search or upload a new resume.
-          </p>
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredResumes.map((resume) => (
-            <motion.div
-              key={resume._id}
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.25 }}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-2xl p-6"
+            <button
+              onClick={() => setShowClearModal(true)}
+              className="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium shadow-lg transition-all duration-300 hover:scale-105"
             >
-              <h2 className="text-xl font-bold truncate">{resume.fileName}</h2>
+              🗑 Clear History
+            </button>
 
-              <div className="flex gap-2 mt-3 flex-wrap">
-                <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full">
-                  AI Analyzed
-                </span>
+            <Link
+              to="/upload"
+              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg transition-all duration-300 hover:scale-105"
+            >
+              + Analyze Resume
+            </Link>
 
-                <span className="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full">
-                  Gemini AI
-                </span>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                <div className="flex justify-between">
-                  <span className="font-medium">ATS Score</span>
-
-                  <span
-                    className={`font-bold ${
-                      resume.score >= 80
-                        ? "text-green-600"
-                        : resume.score >= 60
-                          ? "text-yellow-600"
-                          : "text-red-600"
-                    }`}
-                  >
-                    {resume.score || 0}%
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-medium">Job Match</span>
-
-                  <span>{resume.jobMatch ?? resume.jdMatch ?? 0}%</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-medium">Skills</span>
-
-                  <span>
-                    {(resume.skills || resume.foundSkills || []).length}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-medium">File Size</span>
-
-                  <span>
-                    {resume.fileSize
-                      ? `${(resume.fileSize / 1024).toFixed(1)} KB`
-                      : "N/A"}
-                  </span>
-                </div>
-
-                <p className="text-sm text-gray-500 pt-2">
-                  {new Date(resume.createdAt).toLocaleString()}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mt-6">
-                <Link
-                  to="/dashboard"
-                  state={{ analysis: resume }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-center transition"
-                >
-                  View
-                </Link>
-
-                <button
-                  onClick={() => openDeleteModal(resume)}
-                  className="bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
-                >
-                  Delete
-                </button>
-              </div>
-            </motion.div>
-          ))}
+          </div>
         </div>
-      )}
 
-      {/* Delete Modal */}
+        {/* Search & Sort */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg p-5 mb-8">
+
+          <div className="flex flex-col md:flex-row gap-4 justify-between">
+
+            <input
+              type="text"
+              placeholder="🔍 Search resume..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="
+                w-full
+                md:w-96
+                px-4
+                py-3
+                rounded-xl
+                border
+                border-gray-300
+                dark:border-gray-700
+                bg-white
+                dark:bg-gray-800
+                text-gray-900
+                dark:text-white
+                placeholder:text-gray-500
+                focus:ring-2
+                focus:ring-blue-500
+                outline-none
+                transition
+              "
+            />
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="
+                px-4
+                py-3
+                rounded-xl
+                border
+                border-gray-300
+                dark:border-gray-700
+                bg-white
+                dark:bg-gray-800
+                text-gray-900
+                dark:text-white
+                outline-none
+                focus:ring-2
+                focus:ring-blue-500
+              "
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="highest">Highest ATS</option>
+              <option value="lowest">Lowest ATS</option>
+            </select>
+
+          </div>
+        </div>
+
+        {/* Empty State */}
+
+        {filteredResumes.length === 0 ? (
+
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl shadow-lg py-20 text-center">
+
+            <div className="text-6xl mb-4">
+              📄
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              No Resume Found
+            </h2>
+
+            <p className="mt-3 text-gray-500 dark:text-gray-400">
+              Upload a resume or try another search.
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+
+            {filteredResumes.map((resume) => (
+
+              <motion.div
+                key={resume._id}
+                whileHover={{
+                  y: -6,
+                  scale: 1.02,
+                }}
+                transition={{
+                  duration: 0.25,
+                }}
+                className="
+                  bg-white
+                  dark:bg-gray-900
+                  border
+                  border-gray-200
+                  dark:border-gray-800
+                  rounded-3xl
+                  shadow-lg
+                  hover:shadow-2xl
+                  p-6
+                  transition-all
+                "
+              >
+                <h2 className="text-xl font-bold truncate text-gray-900 dark:text-white">
+                  {resume.fileName}
+                </h2>
+
+                <div className="flex flex-wrap gap-2 mt-4">
+
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                    AI Analyzed
+                  </span>
+
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
+                    Gemini AI
+                  </span>
+
+                </div>
+                                <div className="mt-6 space-y-4">
+
+                  {/* ATS Score */}
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 dark:text-gray-400 font-medium">
+                      ATS Score
+                    </span>
+
+                    <span
+                      className={`font-bold text-lg ${
+                        (resume.score || 0) >= 80
+                          ? "text-green-500"
+                          : (resume.score || 0) >= 60
+                          ? "text-yellow-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {resume.score || 0}%
+                    </span>
+                  </div>
+
+                  <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        (resume.score || 0) >= 80
+                          ? "bg-green-500"
+                          : (resume.score || 0) >= 60
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                      }`}
+                      style={{
+                        width: `${resume.score || 0}%`,
+                      }}
+                    />
+
+                  </div>
+
+                  {/* Job Match */}
+
+                  <div className="flex justify-between">
+
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Job Match
+                    </span>
+
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {resume.jobMatch ?? resume.jdMatch ?? 0}%
+                    </span>
+
+                  </div>
+
+                  {/* Skills */}
+
+                  <div className="flex justify-between">
+
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Skills Found
+                    </span>
+
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {(resume.skills || resume.foundSkills || []).length}
+                    </span>
+
+                  </div>
+
+                  {/* File Size */}
+
+                  <div className="flex justify-between">
+
+                    <span className="text-gray-600 dark:text-gray-400">
+                      File Size
+                    </span>
+
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {resume.fileSize
+                        ? `${(resume.fileSize / 1024).toFixed(1)} KB`
+                        : "N/A"}
+                    </span>
+
+                  </div>
+
+                  {/* Date */}
+
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {new Date(resume.createdAt).toLocaleString()}
+                    </p>
+
+                  </div>
+
+                </div>
+
+                {/* Buttons */}
+
+                <div className="grid grid-cols-2 gap-3 mt-6">
+
+                  <button
+                    onClick={() => handleViewAnalysis(resume)}
+                    className="
+                      bg-blue-600
+                      hover:bg-blue-700
+                      text-white
+                      py-3
+                      rounded-xl
+                      font-semibold
+                      transition-all
+                      duration-300
+                      hover:scale-105
+                    "
+                  >
+                    View Analysis
+                  </button>
+
+                  <button
+                    onClick={() => openDeleteModal(resume)}
+                    className="
+                      bg-red-600
+                      hover:bg-red-700
+                      text-white
+                      py-3
+                      rounded-xl
+                      font-semibold
+                      transition-all
+                      duration-300
+                      hover:scale-105
+                    "
+                  >
+                    Delete
+                  </button>
+
+                </div>
+
+              </motion.div>
+
+            ))}
+
+          </div>
+
+        )}
+              {/* Delete Modal */}
+
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-2xl p-8 w-96 shadow-2xl">
-            <h2 className="text-2xl font-bold mb-3">Delete Resume</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
 
-            <p className="text-gray-600">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.25 }}
+            className="
+              w-full
+              max-w-md
+              rounded-3xl
+              bg-white
+              dark:bg-gray-900
+              border
+              border-gray-200
+              dark:border-gray-800
+              shadow-2xl
+              p-7
+            "
+          >
+
+            <h2 className="text-2xl font-bold text-red-600">
+              Delete Resume
+            </h2>
+
+            <p className="mt-4 text-gray-600 dark:text-gray-400 leading-7">
               Are you sure you want to delete
-              <span className="font-semibold"> {selectedResume?.fileName}</span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {" "}
+                {selectedResume?.fileName}
+              </span>
               ?
             </p>
 
+            <p className="mt-2 text-sm text-red-500">
+              This action cannot be undone.
+            </p>
+
             <div className="flex justify-end gap-3 mt-8">
+
               <button
                 onClick={closeDeleteModal}
-                className="px-5 py-2 rounded-lg border hover:bg-gray-100"
+                className="
+                  px-5
+                  py-2.5
+                  rounded-xl
+                  border
+                  border-gray-300
+                  dark:border-gray-700
+                  bg-white
+                  dark:bg-gray-800
+                  text-gray-700
+                  dark:text-gray-200
+                  hover:bg-gray-100
+                  dark:hover:bg-gray-700
+                  transition
+                "
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleDelete}
-                className="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white"
+                className="
+                  px-5
+                  py-2.5
+                  rounded-xl
+                  bg-red-600
+                  hover:bg-red-700
+                  text-white
+                  font-semibold
+                  transition-all
+                  duration-300
+                  hover:scale-105
+                "
               >
                 Delete
               </button>
+
             </div>
-          </div>
+
+          </motion.div>
+
         </div>
       )}
 
-      {/* Clear All History Modal */}
+      {/* Clear History Modal */}
+
       {showClearModal && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-2xl p-8 w-96 shadow-2xl">
-            <h2 className="text-2xl font-bold mb-3 text-red-600">
-              Clear All History
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.25 }}
+            className="
+              w-full
+              max-w-md
+              rounded-3xl
+              bg-white
+              dark:bg-gray-900
+              border
+              border-gray-200
+              dark:border-gray-800
+              shadow-2xl
+              p-7
+            "
+          >
+
+            <h2 className="text-2xl font-bold text-red-600">
+              Clear History
             </h2>
 
-            <p className="text-gray-600">
-              Are you sure you want to delete <b>all resume history</b>?
-              <br />
-              <span className="text-red-500 font-medium">
-                This action cannot be undone.
+            <p className="mt-4 text-gray-600 dark:text-gray-400 leading-7">
+              Are you sure you want to delete
+              <span className="font-semibold text-red-500">
+                {" "}all resume history
               </span>
+              ?
+            </p>
+
+            <p className="mt-3 text-sm text-red-500">
+              This action cannot be undone.
             </p>
 
             <div className="flex justify-end gap-3 mt-8">
+
               <button
                 onClick={() => setShowClearModal(false)}
-                className="px-5 py-2 rounded-lg border hover:bg-gray-100"
+                className="
+                  px-5
+                  py-2.5
+                  rounded-xl
+                  border
+                  border-gray-300
+                  dark:border-gray-700
+                  bg-white
+                  dark:bg-gray-800
+                  text-gray-700
+                  dark:text-gray-200
+                  hover:bg-gray-100
+                  dark:hover:bg-gray-700
+                  transition
+                "
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleClearHistory}
-                className="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white"
+                className="
+                  px-5
+                  py-2.5
+                  rounded-xl
+                  bg-red-600
+                  hover:bg-red-700
+                  text-white
+                  font-semibold
+                  transition-all
+                  duration-300
+                  hover:scale-105
+                "
               >
                 Delete All
               </button>
+
             </div>
-          </div>
+
+          </motion.div>
+
         </div>
       )}
+
+      </div>
     </div>
   );
 }
 
 export default History;
+        

@@ -4,7 +4,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import jsPDF from "jspdf";
@@ -46,15 +46,25 @@ function Analysis() {
   const tab = searchParams.get("tab");
 
   const [aiResult, setAiResult] = useState("");
-
   const [loadingAI, setLoadingAI] = useState(false);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant",
+    });
+  }, []);
 
   if (!analysis) {
     return (
       <MainLayout>
-        <div className="flex min-h-[70vh] items-center justify-center">
-          <div className="max-w-md rounded-2xl bg-white p-8 text-center shadow-lg dark:bg-slate-900">
-            <h2 className="mb-3 text-2xl font-bold dark:text-white">
+        <div className="flex min-h-[70vh] items-center justify-center px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <h2 className="mb-3 text-2xl font-bold text-slate-900 dark:text-white">
               No Resume Analysis Found
             </h2>
 
@@ -65,11 +75,11 @@ function Analysis() {
 
             <button
               onClick={() => navigate("/upload")}
-              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
             >
               Upload Resume
             </button>
-          </div>
+          </motion.div>
         </div>
       </MainLayout>
     );
@@ -88,7 +98,6 @@ function Analysis() {
   const summary = analysis.summary || "No summary available.";
 
   const skillStrength = Math.min(skills.length * 8, 100);
-
   /* ===============================
         AI Resume Analysis
   =============================== */
@@ -139,6 +148,7 @@ function Analysis() {
       doc.addPage();
       return 20;
     }
+
     return y;
   };
 
@@ -159,6 +169,7 @@ function Analysis() {
 
     let y = 20;
 
+    // Header
     doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, 210, 35, "F");
 
@@ -191,13 +202,13 @@ function Analysis() {
 
     doc.setFontSize(16);
     doc.setTextColor(37, 99, 235);
+
     doc.text("Skills Found", 20, y);
 
     y += 10;
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
-
     const skillLines = doc.splitTextToSize(
       skills.length ? skills.join(", ") : "No skills detected.",
       170,
@@ -209,8 +220,13 @@ function Analysis() {
 
     y = checkPage(doc, y);
 
+    /* ===============================
+          Missing Skills
+    =============================== */
+
     doc.setTextColor(220, 38, 38);
     doc.setFontSize(16);
+
     doc.text("Missing Skills", 20, y);
 
     y += 10;
@@ -229,8 +245,13 @@ function Analysis() {
 
     y = checkPage(doc, y);
 
+    /* ===============================
+          Suggestions
+    =============================== */
+
     doc.setTextColor(16, 185, 129);
     doc.setFontSize(16);
+
     doc.text("Suggestions", 20, y);
 
     y += 10;
@@ -258,139 +279,530 @@ function Analysis() {
       });
     }
 
+    /* ===============================
+          AI Analysis (if available)
+    =============================== */
+
+    if (ai) {
+      y = checkPage(doc, y);
+
+      doc.setTextColor(99, 102, 241);
+      doc.setFontSize(16);
+
+      doc.text("AI Analysis", 20, y);
+
+      y += 10;
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+
+      const aiText = doc.splitTextToSize(
+        typeof ai === "string" ? ai : JSON.stringify(ai, null, 2),
+        170,
+      );
+
+      doc.text(aiText, 20, y);
+    }
+
     doc.save("Resume-Analysis-Report.pdf");
   };
   return (
     <MainLayout>
       <motion.div
-        className="max-w-7xl mx-auto space-y-8"
-        initial={{ opacity: 0, y: 30 }}
+        className="mx-auto max-w-7xl space-y-8"
+        initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.45 }}
       >
-        {/* Top Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-800 dark:text-white">
-              Resume Analysis
-            </h1>
+        {/* ===============================
+                Header
+        =============================== */}
 
-            <p className="text-slate-500 dark:text-slate-400 mt-2">
-              Detailed ATS analysis powered by AI.
-            </p>
-          </div>
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <motion.h1
+                  initial={{ opacity: 0, x: -25 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="text-4xl font-bold text-white"
+                >
+                  Resume Analysis
+                </motion.h1>
 
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={handleAIAnalysis}
-              disabled={loadingAI}
-              className="px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold disabled:opacity-60"
-            >
-              {loadingAI ? "Analyzing..." : "🤖 Analyze with AI"}
-            </button>
+                <p className="mt-3 text-blue-100">
+                  Detailed ATS analysis powered by AI with resume insights,
+                  skill detection, suggestions and job matching.
+                </p>
+              </div>
 
-            <button
-              onClick={downloadReport}
-              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-            >
-              📄 Download Report
-            </button>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={handleAIAnalysis}
+                  disabled={loadingAI}
+                  className="
+                    rounded-xl
+                    bg-purple-600
+                    px-5
+                    py-3
+                    font-semibold
+                    text-white
+                    transition-all
+                    duration-300
+                    hover:scale-105
+                    hover:bg-purple-700
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60
+                  "
+                >
+                  {loadingAI ? "Analyzing..." : "🤖 Analyze with AI"}
+                </button>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate(-1)}
-                className="px-5 py-3 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold"
-              >
-                ← Back
-              </button>
+                <button
+                  onClick={downloadReport}
+                  className="
+                    rounded-xl
+                    bg-emerald-600
+                    px-5
+                    py-3
+                    font-semibold
+                    text-white
+                    transition-all
+                    duration-300
+                    hover:scale-105
+                    hover:bg-emerald-700
+                  "
+                >
+                  📄 Download Report
+                </button>
+                <button
+                  onClick={() => navigate(-1)}
+                  className="
+                    rounded-xl
+                    bg-slate-700
+                    px-5
+                    py-3
+                    font-semibold
+                    text-white
+                    transition-all
+                    duration-300
+                    hover:scale-105
+                    hover:bg-slate-800
+                  "
+                >
+                  ← Back
+                </button>
 
-              <button
-                onClick={() => navigate("/dashboard")}
-                className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-              >
-                Dashboard
-              </button>
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="
+                    rounded-xl
+                    bg-blue-600
+                    px-5
+                    py-3
+                    font-semibold
+                    text-white
+                    transition-all
+                    duration-300
+                    hover:scale-105
+                    hover:bg-blue-700
+                  "
+                >
+                  Dashboard
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
+                <p className="text-sm text-blue-100">ATS Score</p>
+
+                <h3 className="mt-2 text-3xl font-bold text-white">{score}%</h3>
+              </div>
+
+              <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
+                <p className="text-sm text-blue-100">Job Match</p>
+
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {jobMatch}%
+                </h3>
+              </div>
+
+              <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
+                <p className="text-sm text-blue-100">Skills Detected</p>
+
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {skills.length}
+                </h3>
+              </div>
             </div>
           </div>
         </div>
+        {/* =========================================
+                Score + Resume Preview
+        ========================================= */}
 
-        {/* Score + Preview */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ScoreCard score={score} />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, x: -25 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45 }}
+            className="
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-6
+              shadow-lg
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+          >
+            <ScoreCard score={score} />
+          </motion.div>
 
-          <ResumePreview file={file} />
+          <motion.div
+            initial={{ opacity: 0, x: 25 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45 }}
+            className="
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-6
+              shadow-lg
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+          >
+            <ResumePreview file={file} />
+          </motion.div>
         </div>
 
-        {/* Summary + Job Match */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <SummaryCard summary={summary} score={score} skills={skills} />
+        {/* =========================================
+                Summary + Job Match
+        ========================================= */}
 
-          <JobMatchCard jobMatch={jobMatch} />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45 }}
+            className="
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-6
+              shadow-lg
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+          >
+            <SummaryCard summary={summary} score={score} skills={skills} />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45 }}
+            className="
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-6
+              shadow-lg
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+          >
+            <JobMatchCard jobMatch={jobMatch} />
+          </motion.div>
         </div>
 
-        {/* Analytics */}
-        <AnalyticsChart
-          score={score}
-          jobMatch={jobMatch}
-          skills={skills}
-          missingSkills={missingSkills}
-          suggestions={suggestions}
-        />
+        {/* =========================================
+                    Analytics
+        ========================================= */}
 
-        {/* Resume Strength */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6">
-          <h2 className="text-2xl font-bold mb-6 dark:text-white">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45 }}
+          className="
+            rounded-3xl
+            border
+            border-slate-200
+            bg-white
+            p-6
+            shadow-lg
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+        >
+          <AnalyticsChart
+            score={score}
+            jobMatch={jobMatch}
+            skills={skills}
+            missingSkills={missingSkills}
+            suggestions={suggestions}
+          />
+        </motion.div>
+        {/* =========================================
+                Resume Strength
+        ========================================= */}
+
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45 }}
+          className="
+            rounded-3xl
+            border
+            border-slate-200
+            bg-white
+            p-6
+            shadow-lg
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+        >
+          <h2 className="mb-8 text-2xl font-bold text-slate-900 dark:text-white">
             Resume Strength
           </h2>
 
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between mb-2 dark:text-white">
-                <span>Skills</span>
+          <div className="space-y-8">
+            {/* Skill Strength */}
 
-                <span>{skillStrength}%</span>
+            <div>
+              <div className="mb-2 flex justify-between">
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  Skills Coverage
+                </span>
+
+                <span className="font-bold text-blue-600">
+                  {skillStrength}%
+                </span>
               </div>
 
-              <progress className="w-full" value={skillStrength} max="100" />
+              <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${skillStrength}%` }}
+                  transition={{ duration: 1 }}
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                />
+              </div>
             </div>
 
-            <div>
-              <div className="flex justify-between mb-2 dark:text-white">
-                <span>Overall ATS</span>
+            {/* ATS Strength */}
 
-                <span>{score}%</span>
+            <div>
+              <div className="mb-2 flex justify-between">
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  Overall ATS Score
+                </span>
+
+                <span className="font-bold text-emerald-600">{score}%</span>
               </div>
 
-              <progress className="w-full" value={score} max="100" />
+              <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${score}%` }}
+                  transition={{ duration: 1 }}
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-600"
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Skills */}
-        <SkillsCard skills={skills} />
+        {/* =========================================
+                Skills
+        ========================================= */}
 
-        {/* Missing Skills */}
-        <MissingSkillsCard missingSkills={missingSkills} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="
+            rounded-3xl
+            border
+            border-slate-200
+            bg-white
+            p-6
+            shadow-lg
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+        >
+          <SkillsCard skills={skills} />
+        </motion.div>
 
-        {/* Suggestions */}
-        <SuggestionsCard suggestions={suggestions} />
+        {/* =========================================
+                Missing Skills
+        ========================================= */}
 
-        {/* AI Analysis */}
-        {aiResult && <AIAnalysisCard data={aiResult} />}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="
+            rounded-3xl
+            border
+            border-slate-200
+            bg-white
+            p-6
+            shadow-lg
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+        >
+          <MissingSkillsCard missingSkills={missingSkills} />
+        </motion.div>
 
-        {/* JD Matcher */}
-        {tab === "jd" && (
-          <JDMatcher
-            resumeText={
-              analysis?.extractedText ||
-              analysis?.resumeText ||
-              analysis?.text ||
-              ""
-            }
-          />
+        {/* =========================================
+                Suggestions
+        ========================================= */}
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="
+            rounded-3xl
+            border
+            border-slate-200
+            bg-white
+            p-6
+            shadow-lg
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+        >
+          <SuggestionsCard suggestions={suggestions} />
+        </motion.div>
+        {/* =========================================
+                AI Analysis
+        ========================================= */}
+
+        {aiResult && (
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45 }}
+            className="
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-6
+              shadow-lg
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+          >
+            <AIAnalysisCard data={aiResult} />
+          </motion.div>
         )}
 
+        {/* =========================================
+                JD Matcher
+        ========================================= */}
+
+        {tab === "jd" && (
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-6
+              shadow-lg
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+          >
+            <JDMatcher
+              resumeText={
+                analysis?.extractedText ||
+                analysis?.resumeText ||
+                analysis?.text ||
+                ""
+              }
+            />
+          </motion.div>
+        )}
+
+        {/* =========================================
+                Resume Chat (Tab)
+        ========================================= */}
+
         {tab === "chat" && (
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-6
+              shadow-lg
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+          >
+            <ResumeChat
+              resumeText={
+                analysis?.extractedText ||
+                analysis?.resumeText ||
+                analysis?.text ||
+                ""
+              }
+            />
+          </motion.div>
+        )}
+
+        {/* =========================================
+                Resume Chat
+        ========================================= */}
+
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45 }}
+          className="
+            rounded-3xl
+            border
+            border-slate-200
+            bg-white
+            p-6
+            shadow-lg
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+        >
           <ResumeChat
             resumeText={
               analysis?.extractedText ||
@@ -399,17 +811,7 @@ function Analysis() {
               ""
             }
           />
-        )}
-
-        {/* Resume Chat */}
-        <ResumeChat
-          resumeText={
-            analysis?.extractedText ||
-            analysis?.resumeText ||
-            analysis?.text ||
-            ""
-          }
-        />
+        </motion.div>
       </motion.div>
     </MainLayout>
   );
