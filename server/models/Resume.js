@@ -11,6 +11,7 @@ const resumeSchema = new mongoose.Schema(
     fileName: {
       type: String,
       required: true,
+      trim: true,
     },
 
     fileSize: {
@@ -19,6 +20,16 @@ const resumeSchema = new mongoose.Schema(
     },
 
     filePath: {
+      type: String,
+      default: "",
+    },
+
+    extractedText: {
+      type: String,
+      default: "",
+    },
+
+    jobDescription: {
       type: String,
       default: "",
     },
@@ -53,9 +64,21 @@ const resumeSchema = new mongoose.Schema(
       default: "",
     },
 
-    extractedText: {
+    // Store complete analysis object
+    analysis: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+
+    aiProvider: {
       type: String,
-      default: "",
+      default: "Gemini",
+    },
+
+    status: {
+      type: String,
+      enum: ["processing", "completed", "failed"],
+      default: "completed",
     },
   },
   {

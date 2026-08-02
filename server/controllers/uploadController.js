@@ -4,9 +4,14 @@ const pdf = require("pdf-parse");
 const Resume = require("../models/Resume");
 const { analyzeResume } = require("../services/resumeAnalyzer");
 
+// =====================================
+// Upload Resume
+// =====================================
+
 const uploadResume = async (req, res) => {
   try {
-    // Check file
+    // Validate uploaded file
+
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -14,81 +19,120 @@ const uploadResume = async (req, res) => {
       });
     }
 
-    // Check authenticated user
+    // Validate authenticated user
+
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: "User authentication failed.",
+        message: "Unauthorized.",
       });
     }
 
-    // Check file exists
+    // Check uploaded file exists
+
     if (!fs.existsSync(req.file.path)) {
       return res.status(500).json({
         success: false,
-        message: "Uploaded file not found on server.",
+        message: "Uploaded file not found.",
       });
     }
 
     // Read PDF
+
     const buffer = fs.readFileSync(req.file.path);
+
     const pdfData = await pdf(buffer);
 
     if (!pdfData.text || pdfData.text.trim() === "") {
       return res.status(400).json({
         success: false,
-        message: "Unable to extract text from PDF.",
+        message: "Unable to extract text from resume.",
       });
     }
 
-    const resumeText = pdfData.text;
-    const jobDescription = req.body.jobDescription || "";
+    const extractedText = pdfData.text;
 
-    // Analyze Resume
-    const analysis = analyzeResume(resumeText, jobDescription);
+    const jobDescription =
+      req.body.jobDescription || "";
 
-    // Save to MongoDB
-    const savedResume = await Resume.create({
+    // =====================================
+    // AI / Rule Based Analysis
+    // =====================================
+
+    const analysis = analyzeResume(
+      extractedText,
+      jobDescription
+    );
+
+    // =====================================
+    // Save Resume
+    // =====================================
+
+    const resume = await Resume.create({
       user: req.user._id,
+
       fileName: req.file.originalname,
+
       fileSize: req.file.size,
+
       filePath: `/uploads/${req.file.filename}`,
+
+      extractedText,
+
+      jobDescription,
+
       score: analysis.score,
+
       jobMatch: analysis.jobMatch,
+
       skills: analysis.skills,
+
       missingSkills: analysis.missingSkills,
+
       suggestions: analysis.suggestions,
+
       summary: analysis.summary,
-      extractedText: resumeText,
+
+      analysis,
+
+      status: "completed",
+
+      aiProvider: "Rule Based Analyzer",
     });
 
-    return res.status(200).json({
+    // =====================================
+    // Response
+    // =====================================
+
+    return res.status(201).json({
       success: true,
+
       message: "Resume analyzed successfully.",
-      analysis: {
-        id: savedResume._id,
-        fileName: savedResume.fileName,
-        filePath: savedResume.filePath,
-        score: savedResume.score,
-        jobMatch: savedResume.jobMatch,
-        skills: savedResume.skills,
-        missingSkills: savedResume.missingSkills,
-        suggestions: savedResume.suggestions,
-        summary: savedResume.summary,
-        extractedText: resumeText,
-      },
+
+      resumeId: resume._id,
+
+      analysis: resume.analysis,
+
+      resume,
     });
+
   } catch (error) {
-    console.error("========== UPLOAD ERROR ==========");
+
+    console.error("UPLOAD ERROR");
     console.error(error);
-    console.error("==================================");
 
     return res.status(500).json({
       success: false,
-      message: error.message,
-      error: process.env.NODE_ENV === "development" ? error.stack : undefined,
+      message: "Resume upload failed.",
+      error:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : undefined,
     });
+
   }
 };
 
-module.exports = { uploadResume };
+module.exports = {
+  uploadResume,
+};
