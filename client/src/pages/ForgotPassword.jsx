@@ -1,57 +1,59 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { register } from "../services/authService";
-import { FaRobot } from "react-icons/fa";
+import { FaEnvelope } from "react-icons/fa";
 
-export default function Signup() {
+import { forgotPassword } from "../services/authService";
+
+export default function ForgotPassword() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [email, setEmail] = useState("");
 
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
+    if (!email.trim()) {
+      return toast.error("Please enter your email.");
+    }
 
     try {
-      const data = await register(form);
+      setLoading(true);
+
+      const data = await forgotPassword({
+        email,
+      });
 
       toast.success(
         data.message ||
-          "Verification OTP sent to your email."
+          "OTP sent successfully."
       );
 
-      navigate("/verify-email", {
+      navigate("/reset-password", {
         state: {
-          email: form.email,
+          email,
         },
       });
+
     } catch (err) {
+
       toast.error(
         err.response?.data?.message ||
-          "Registration failed."
+          "Failed to send OTP."
       );
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6 transition-colors duration-300 dark:bg-slate-950">
+
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
 
         {/* Logo */}
@@ -59,43 +61,26 @@ export default function Signup() {
         <div className="mb-8 flex flex-col items-center">
 
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg">
-            <FaRobot className="text-3xl text-white" />
+
+            <FaEnvelope className="text-2xl text-white" />
+
           </div>
 
           <h1 className="mt-5 text-3xl font-bold text-slate-900 dark:text-white">
-            Create Account
+            Forgot Password
           </h1>
 
           <p className="mt-2 text-center text-slate-500 dark:text-slate-400">
-            Join ResumeAI and verify your email to get started.
+            Enter your registered email to receive a password reset OTP.
           </p>
 
         </div>
 
-        {/* Form */}
-
         <form
           onSubmit={handleSubmit}
-          className="space-y-5"
+          className="space-y-6"
         >
-
-          <div>
-
-            <label className="mb-2 block font-medium text-slate-700 dark:text-slate-300">
-              Full Name
-            </label>
-
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-              required
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-            />
-
-          </div>
+                    {/* Email */}
 
           <div>
 
@@ -105,33 +90,18 @@ export default function Signup() {
 
             <input
               type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              placeholder="Enter your registered email"
               required
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             />
 
           </div>
 
-          <div>
-
-            <label className="mb-2 block font-medium text-slate-700 dark:text-slate-300">
-              Password
-            </label>
-
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Create a password"
-              required
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-            />
-
-          </div>
+          {/* Submit */}
 
           <button
             type="submit"
@@ -139,15 +109,17 @@ export default function Signup() {
             className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-semibold text-white transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading
-              ? "Creating Account..."
-              : "Create Account"}
+              ? "Sending OTP..."
+              : "Send OTP"}
           </button>
 
         </form>
 
+        {/* Back to Login */}
+
         <p className="mt-6 text-center text-slate-600 dark:text-slate-400">
 
-          Already have an account?{" "}
+          Remember your password?{" "}
 
           <Link
             to="/login"
@@ -159,6 +131,7 @@ export default function Signup() {
         </p>
 
       </div>
+
     </div>
   );
 }

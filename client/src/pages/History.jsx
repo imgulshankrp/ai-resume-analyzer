@@ -109,15 +109,13 @@ function History() {
     }
   };
 
-  const handleViewAnalysis = (resume) => {
-    navigate("/analysis", {
-      state: {
-        analysis: resume,
-        file: null,
-      },
-    });
-  };
-
+ const handleViewAnalysis = (resume) => {
+  navigate(`/analysis/${resume._id}`, {
+    state: {
+      resume,
+    },
+  });
+};
   const filteredResumes = useMemo(() => {
     let data = [...resumes];
 

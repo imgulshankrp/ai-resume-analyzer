@@ -1,9 +1,4 @@
-import {
-  useLocation,
-  Navigate,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -29,17 +24,21 @@ import ResumeChat from "../components/chat/ResumeChat";
 
 import { API_URL } from "../config";
 
+import { getResumeById } from "../services/resumeService";
+
 function Analysis() {
-  const location = useLocation();
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const analysis = location.state?.analysis;
+  const { id } = useParams();
 
-  const file = location.state?.file;
+  const [analysis, setAnalysis] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+  const file = null;
 
   const [searchParams] = useSearchParams();
 
@@ -47,13 +46,45 @@ function Analysis() {
 
   const [aiResult, setAiResult] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
+  const loadResume = async () => {
+    try {
+      setLoading(true);
+
+      const res = await getResumeById(id);
+
+      setAnalysis(res.resume);
+    } catch (err) {
+      console.error(err);
+
+      toast.error("Unable to load resume.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "instant",
-    });
-  }, []);
+    loadResume();
+  }, [id]);
+
+  useEffect(() => {
+    if (!loading && analysis) {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
+    }
+  }, [loading, analysis]);
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[70vh]">
+          <h2 className="text-3xl font-bold">Loading Resume...</h2>
+        </div>
+      </MainLayout>
+    );
+  }
 
   if (!analysis) {
     return (
@@ -85,17 +116,21 @@ function Analysis() {
     );
   }
 
-  const score = analysis.score || 0;
+  const score = analysis.analysis?.score || analysis.score || 0;
+  const jobMatch =
+    analysis.analysis?.jobMatch ?? analysis.jobMatch ?? analysis.jdMatch ?? 0;
 
-  const jobMatch = analysis.jobMatch ?? analysis.jdMatch ?? 0;
+  const skills =
+    analysis.analysis?.skills || analysis.skills || analysis.foundSkills || [];
 
-  const skills = analysis.skills || analysis.foundSkills || [];
+  const missingSkills =
+    analysis.analysis?.missingSkills || analysis.missingSkills || [];
 
-  const missingSkills = analysis.missingSkills || [];
+  const suggestions =
+    analysis.analysis?.suggestions || analysis.suggestions || [];
 
-  const suggestions = analysis.suggestions || [];
-
-  const summary = analysis.summary || "No summary available.";
+  const summary =
+    analysis.analysis?.summary || analysis.summary || "No summary available.";
 
   const skillStrength = Math.min(skills.length * 8, 100);
   /* ===============================
@@ -481,7 +516,12 @@ function Analysis() {
               dark:bg-slate-900
             "
           >
-            <ResumePreview file={file} />
+            <ResumePreview
+              file={{
+                fileName: analysis.fileName,
+                filePath: analysis.filePath,
+              }}
+            />
           </motion.div>
         </div>
 

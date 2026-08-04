@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   HiOutlineDocumentArrowUp,
@@ -7,38 +8,65 @@ import {
   HiArrowRight,
 } from "react-icons/hi2";
 
-const activities = [
-  {
-    title: "Resume Uploaded",
-    description: "Your latest resume was uploaded successfully.",
-    time: "2 hours ago",
-    icon: HiOutlineDocumentArrowUp,
-    gradient: "from-blue-500 to-cyan-500",
-  },
-  {
-    title: "AI Analysis Completed",
-    description: "Gemini AI analyzed your resume and generated insights.",
-    time: "Yesterday",
-    icon: HiOutlineSparkles,
-    gradient: "from-violet-500 to-fuchsia-500",
-  },
-  {
-    title: "ATS Report Downloaded",
-    description: "Downloaded your latest ATS performance report.",
-    time: "2 days ago",
-    icon: HiOutlineDocumentChartBar,
-    gradient: "from-green-500 to-emerald-500",
-  },
-  {
-    title: "Profile Updated",
-    description: "Your profile information was updated successfully.",
-    time: "Last Week",
-    icon: HiOutlineCheckCircle,
-    gradient: "from-orange-500 to-red-500",
-  },
-];
+import { getProfile } from "../../services/profileService";
 
 export default function RecentActivity() {
+  const [activities, setActivities] = useState([]);
+
+  useEffect(() => {
+    loadActivities();
+  }, []);
+
+  const loadActivities = async () => {
+    try {
+      const res = await getProfile();
+
+      const user = res.user;
+
+      const activityList = [
+        {
+          title: "Profile Loaded",
+          description: "Your profile has been loaded successfully.",
+          time: "Just Now",
+          icon: HiOutlineCheckCircle,
+          gradient: "from-green-500 to-emerald-500",
+        },
+        {
+          title: "Profile Updated",
+          description:
+            "Your profile information is synced with MongoDB.",
+          time: "Latest",
+          icon: HiOutlineDocumentChartBar,
+          gradient: "from-orange-500 to-red-500",
+        },
+        {
+          title: "Skills Available",
+          description: `${
+            user.skills?.length || 0
+          } technical skills found in your profile.`,
+          time: "Current",
+          icon: HiOutlineSparkles,
+          gradient: "from-violet-500 to-fuchsia-500",
+        },
+        {
+          title: "Resume Statistics",
+          description: `${
+            user.totalResumes || 0
+          } resumes uploaded with highest ATS score ${
+            user.highestATS || 0
+          }%.`,
+          time: "Current",
+          icon: HiOutlineDocumentArrowUp,
+          gradient: "from-blue-500 to-cyan-500",
+        },
+      ];
+
+      setActivities(activityList);
+    } catch (error) {
+      console.error("Recent Activity Error:", error);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 25 }}
@@ -66,7 +94,7 @@ export default function RecentActivity() {
           </h2>
 
           <p className="mt-2 text-slate-500 dark:text-slate-400">
-            Track your latest resume activities
+            Latest updates from your Resume Analyzer account
           </p>
 
         </div>
@@ -80,8 +108,6 @@ export default function RecentActivity() {
       {/* Timeline */}
 
       <div className="relative">
-
-        {/* Vertical Line */}
 
         <div className="absolute left-7 top-0 bottom-0 w-[2px] bg-slate-200 dark:bg-slate-700"></div>
 
@@ -106,19 +132,7 @@ export default function RecentActivity() {
                 {/* Icon */}
 
                 <div
-                  className={`
-                    relative
-                    z-10
-                    flex
-                    h-14
-                    w-14
-                    items-center
-                    justify-center
-                    rounded-2xl
-                    bg-gradient-to-br
-                    ${activity.gradient}
-                    shadow-lg
-                  `}
+                  className={`relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${activity.gradient} shadow-lg`}
                 >
                   <Icon className="text-2xl text-white" />
                 </div>
@@ -143,9 +157,9 @@ export default function RecentActivity() {
                     {activity.description}
                   </p>
 
-                  <div className="mt-4 flex items-center gap-2 text-blue-600 font-semibold">
+                  <div className="mt-4 flex items-center gap-2 font-semibold text-blue-600">
 
-                    View Details
+                    Latest Update
 
                     <HiArrowRight />
 

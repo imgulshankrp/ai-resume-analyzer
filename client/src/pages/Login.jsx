@@ -1,56 +1,116 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 import { toast } from "react-toastify";
-import { loginUser } from "../api/auth";
+import { GoogleLogin } from "@react-oauth/google";
+
+import {
+  login,
+  googleLogin,
+} from "../services/authService";
+
 import { FaRobot } from "react-icons/fa";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  const [loading, setLoading] =
+    useState(false);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]:
+        e.target.value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
-      const { data } = await loginUser(form);
+      setLoading(true);
 
-      localStorage.setItem("token", data.token);
+      const data = await login(form);
+
+      localStorage.setItem(
+        "token",
+        data.token
+      );
+
       localStorage.setItem(
         "user",
         JSON.stringify(data.user)
       );
 
-      toast.success("Login Successful!");
+      toast.success(
+        "Login Successful"
+      );
 
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 800);
+      navigate("/dashboard");
 
     } catch (err) {
+
       toast.error(
-        err.response?.data?.message ||
-        "Invalid email or password"
+        err.response?.data
+          ?.message ||
+          "Login failed."
       );
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
-  return (
+  const handleGoogleLogin =
+    async (
+      credentialResponse
+    ) => {
+      try {
+
+        const data =
+          await googleLogin(
+            credentialResponse.credential
+          );
+
+        localStorage.setItem(
+          "token",
+          data.token
+        );
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(
+            data.user
+          )
+        );
+
+        toast.success(
+          "Google Login Successful"
+        );
+
+        navigate(
+          "/dashboard"
+        );
+
+      } catch (err) {
+
+        toast.error(
+          err.response?.data
+            ?.message ||
+            "Google Login Failed"
+        );
+
+      }
+    };
+      return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6 transition-colors duration-300 dark:bg-slate-950">
 
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
@@ -92,8 +152,8 @@ export default function Login() {
               value={form.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               required
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             />
 
           </div>
@@ -110,13 +170,25 @@ export default function Login() {
               value={form.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               required
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             />
 
           </div>
 
+          <div className="flex justify-end">
+
+            <Link
+              to="/forgot-password"
+              className="text-sm font-medium text-blue-600 hover:underline"
+            >
+              Forgot Password?
+            </Link>
+
+          </div>
+
           <button
+            type="submit"
             disabled={loading}
             className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-semibold text-white transition hover:scale-[1.02] disabled:opacity-60"
           >
@@ -125,7 +197,37 @@ export default function Login() {
 
         </form>
 
-        <p className="mt-6 text-center text-slate-600 dark:text-slate-400">
+        {/* Divider */}
+
+        <div className="my-6 flex items-center">
+
+          <div className="h-px flex-1 bg-slate-300 dark:bg-slate-700"></div>
+
+          <span className="mx-4 text-sm text-slate-500">
+            OR
+          </span>
+
+          <div className="h-px flex-1 bg-slate-300 dark:bg-slate-700"></div>
+
+        </div>
+
+        {/* Google Login */}
+
+        <div className="flex justify-center">
+
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() =>
+              toast.error("Google Login Failed")
+            }
+            theme="outline"
+            size="large"
+            shape="pill"
+          />
+
+        </div>
+
+        <p className="mt-8 text-center text-slate-600 dark:text-slate-400">
 
           Don't have an account?{" "}
 

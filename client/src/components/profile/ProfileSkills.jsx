@@ -1,25 +1,29 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   HiOutlineSparkles,
   HiOutlineCodeBracket,
 } from "react-icons/hi2";
 
-const skills = [
-  "React",
-  "Node.js",
-  "Express",
-  "MongoDB",
-  "JavaScript",
-  "Tailwind CSS",
-  "HTML",
-  "CSS",
-  "Git",
-  "GitHub",
-  "REST API",
-  "JWT",
-];
+import { getProfile } from "../../services/profileService";
 
 export default function ProfileSkills() {
+  const [skills, setSkills] = useState([]);
+
+  useEffect(() => {
+    loadSkills();
+  }, []);
+
+  const loadSkills = async () => {
+    try {
+      const res = await getProfile();
+
+      setSkills(res.user.skills || []);
+    } catch (error) {
+      console.error("Profile Skills Error:", error);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 25 }}
@@ -45,8 +49,8 @@ export default function ProfileSkills() {
               Technical Skills
             </h2>
 
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
-              Technologies detected from your resume
+            <p className="mt-1 text-slate-500 dark:text-slate-400">
+              Technologies detected from your profile
             </p>
 
           </div>
@@ -61,49 +65,67 @@ export default function ProfileSkills() {
 
       {/* Skills */}
 
-      <div className="flex flex-wrap gap-4">
+      {skills.length === 0 ? (
 
-        {skills.map((skill, index) => (
+        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 py-12 text-center">
 
-          <motion.div
-            key={skill}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              delay: index * 0.04,
-            }}
-            whileHover={{
-              y: -4,
-              scale: 1.06,
-            }}
-            className="
-              group
-              flex
-              items-center
-              gap-2
-              rounded-2xl
-              bg-gradient-to-r
-              from-indigo-600
-              to-purple-600
-              px-5
-              py-3
-              text-white
-              shadow-lg
-              cursor-pointer
-            "
-          >
+          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200">
+            No Skills Added
+          </h3>
 
-            <HiOutlineSparkles className="text-lg group-hover:rotate-12 transition" />
+          <p className="mt-2 text-slate-500 dark:text-slate-400">
+            Update your profile to add your technical skills.
+          </p>
 
-            <span className="font-medium">
-              {skill}
-            </span>
+        </div>
 
-          </motion.div>
+      ) : (
 
-        ))}
+        <div className="flex flex-wrap gap-4">
 
-      </div>
+          {skills.map((skill, index) => (
+
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                delay: index * 0.04,
+              }}
+              whileHover={{
+                y: -4,
+                scale: 1.06,
+              }}
+              className="
+                group
+                flex
+                items-center
+                gap-2
+                rounded-2xl
+                bg-gradient-to-r
+                from-indigo-600
+                to-purple-600
+                px-5
+                py-3
+                text-white
+                shadow-lg
+                cursor-pointer
+              "
+            >
+
+              <HiOutlineSparkles className="text-lg group-hover:rotate-12 transition" />
+
+              <span className="font-medium">
+                {skill}
+              </span>
+
+            </motion.div>
+
+          ))}
+
+        </div>
+
+      )}
 
       {/* Footer */}
 
@@ -111,9 +133,10 @@ export default function ProfileSkills() {
 
         <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
 
-          Your strongest technologies have been automatically detected from
-          your uploaded resume. Keeping these skills updated will improve
-          ATS accuracy and Job Match results.
+          These skills are loaded directly from your profile. You can update
+          them anytime from the <strong>Edit Profile</strong> page. Keeping
+          them up to date improves ATS analysis, resume recommendations,
+          and job matching.
 
         </p>
 

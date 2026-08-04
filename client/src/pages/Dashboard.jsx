@@ -3,13 +3,14 @@ import MainLayout from "../components/layout/MainLayout";
 
 import WelcomeBanner from "../components/dashboard/WelcomeBanner";
 import StatsCards from "../components/dashboard/StatsCards";
-import AnalyticsChart from "../components/dashboard/AnalyticsChart";
+import DashboardAnalytics from "../components/dashboard/DashboardAnalytics";
+
 import RecentResume from "../components/dashboard/RecentResume";
 import QuickActions from "../components/dashboard/QuickActions";
+
 import ActivityTimeline from "../components/dashboard/ActivityTimeline";
-import UpgradeCard from "../components/dashboard/UpgradeCard";
 import UserCard from "../components/dashboard/UserCard";
-import DashboardAnalytics from "../components/dashboard/DashboardAnalytics.jsx";
+import UpgradeCard from "../components/dashboard/UpgradeCard";
 
 export default function Dashboard() {
   return (
@@ -30,8 +31,10 @@ export default function Dashboard() {
         <DashboardAnalytics />
 
         {/* Recent Resume + Quick Actions */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-2 items-stretch">
+
           <motion.div
+            className="h-full"
             initial={{ opacity: 0, x: -25 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
@@ -40,25 +43,34 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div
+            className="h-full"
             initial={{ opacity: 0, x: 25 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
             <QuickActions />
           </motion.div>
+
         </div>
 
         {/* Timeline + User */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
+
           <div className="xl:col-span-2">
+
             <ActivityTimeline />
+
           </div>
 
           <UserCard />
+
         </div>
 
         {/* Upgrade */}
+
         <UpgradeCard />
+
       </motion.div>
     </MainLayout>
   );

@@ -57,12 +57,7 @@ function UploadBox() {
 
       toast.success("Resume analyzed successfully.");
 
-      navigate("/analysis", {
-        state: {
-          analysis: data.analysis,
-          file,
-        },
-      });
+      navigate(`/analysis/${data.resumeId}`);
     } catch (err) {
       console.error(err);
 

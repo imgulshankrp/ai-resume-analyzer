@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   HiOutlineDocumentText,
@@ -6,43 +7,93 @@ import {
   HiOutlineTrophy,
   HiArrowTrendingUp,
 } from "react-icons/hi2";
-
-const stats = [
-  {
-    title: "Total Resumes",
-    value: "18",
-    subtitle: "Uploaded",
-    icon: HiOutlineDocumentText,
-    gradient: "from-blue-500 to-cyan-500",
-    trend: "+4",
-  },
-  {
-    title: "Highest ATS",
-    value: "96%",
-    subtitle: "Best Resume",
-    icon: HiOutlineTrophy,
-    gradient: "from-emerald-500 to-green-600",
-    trend: "+6%",
-  },
-  {
-    title: "Average ATS",
-    value: "88%",
-    subtitle: "Overall Score",
-    icon: HiOutlineChartBar,
-    gradient: "from-orange-500 to-red-500",
-    trend: "+3%",
-  },
-  {
-    title: "AI Analysis",
-    value: "42",
-    subtitle: "Completed",
-    icon: HiOutlineSparkles,
-    gradient: "from-violet-500 to-fuchsia-500",
-    trend: "+12",
-  },
-];
+import { getProfile } from "../../services/profileService";
 
 export default function ProfileStats() {
+  const [stats, setStats] = useState([
+    {
+      title: "Total Resumes",
+      value: "0",
+      subtitle: "Uploaded",
+      icon: HiOutlineDocumentText,
+      gradient: "from-blue-500 to-cyan-500",
+      trend: "",
+    },
+    {
+      title: "Highest ATS",
+      value: "0%",
+      subtitle: "Best Resume",
+      icon: HiOutlineTrophy,
+      gradient: "from-emerald-500 to-green-600",
+      trend: "",
+    },
+    {
+      title: "Average ATS",
+      value: "0%",
+      subtitle: "Overall Score",
+      icon: HiOutlineChartBar,
+      gradient: "from-orange-500 to-red-500",
+      trend: "",
+    },
+    {
+      title: "AI Analysis",
+      value: "0",
+      subtitle: "Completed",
+      icon: HiOutlineSparkles,
+      gradient: "from-violet-500 to-fuchsia-500",
+      trend: "",
+    },
+  ]);
+
+  useEffect(() => {
+    loadProfileStats();
+  }, []);
+
+  const loadProfileStats = async () => {
+    try {
+      const res = await getProfile();
+
+      const user = res.user;
+
+      setStats([
+        {
+          title: "Total Resumes",
+          value: user.totalResumes || 0,
+          subtitle: "Uploaded",
+          icon: HiOutlineDocumentText,
+          gradient: "from-blue-500 to-cyan-500",
+          trend: `${user.totalResumes || 0}`,
+        },
+        {
+          title: "Highest ATS",
+          value: `${user.highestATS || 0}%`,
+          subtitle: "Best Resume",
+          icon: HiOutlineTrophy,
+          gradient: "from-emerald-500 to-green-600",
+          trend: `${user.highestATS || 0}%`,
+        },
+        {
+          title: "Average ATS",
+          value: `${user.averageATS || 0}%`,
+          subtitle: "Overall Score",
+          icon: HiOutlineChartBar,
+          gradient: "from-orange-500 to-red-500",
+          trend: `${user.averageATS || 0}%`,
+        },
+        {
+          title: "AI Analysis",
+          value: user.totalChats || 0,
+          subtitle: "Completed",
+          icon: HiOutlineSparkles,
+          gradient: "from-violet-500 to-fuchsia-500",
+          trend: `${user.totalChats || 0}`,
+        },
+      ]);
+    } catch (error) {
+      console.error("Profile Stats Error:", error);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
       {stats.map((item, index) => {
@@ -78,8 +129,6 @@ export default function ProfileStats() {
               duration-300
             "
           >
-            {/* Background Glow */}
-
             <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-slate-100 dark:bg-slate-800 blur-3xl opacity-60 group-hover:scale-125 transition-all duration-500"></div>
 
             <div className="relative flex items-start justify-between">
@@ -99,11 +148,8 @@ export default function ProfileStats() {
                 </p>
 
                 <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-sm font-semibold text-green-700 dark:text-green-300">
-
                   <HiArrowTrendingUp />
-
                   {item.trend}
-
                 </div>
 
               </div>
