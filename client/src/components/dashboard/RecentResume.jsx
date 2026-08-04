@@ -43,15 +43,11 @@ function RecentResume() {
           ? data.resumes
           : [];
 
-        setTotalFiles(resumeList.length);
-
         setResumes(resumeList.slice(0, 2));
+        setTotalFiles(resumeList.length);
       }
     } catch (error) {
-      console.error(
-        "Recent Resume Error:",
-        error
-      );
+      console.error("Recent Resume Error:", error);
     } finally {
       setLoading(false);
     }
@@ -63,7 +59,7 @@ function RecentResume() {
     );
   }
 
-  if (resumes.length === 0) {
+  if (!resumes.length) {
     return (
       <EmptyState
         title="No Resume Found"
@@ -71,135 +67,109 @@ function RecentResume() {
       />
     );
   }
-
   return (
-    <Card className="h-full rounded-3xl">
+  <Card className="w-full rounded-3xl overflow-hidden">
 
-      {/* Header */}
+    {/* Header */}
 
-      <div className="mb-8 flex items-center justify-between">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
 
-        <div>
+      <div>
 
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          Recent Resumes
+        </h2>
 
-            Recent Resumes
-
-          </h2>
-
-          <p className="mt-1 text-slate-500 dark:text-slate-400">
-
-            Your latest uploaded resumes
-
-          </p>
-
-        </div>
-
-        <div className="flex items-center gap-3">
-
-          <div className="rounded-xl bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-
-            {totalFiles} Files
-
-          </div>
-
-          <Link
-            to="/history"
-            className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-          >
-            View All →
-          </Link>
-
-        </div>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">
+          Your latest uploaded resumes
+        </p>
 
       </div>
 
-      {/* Resume List */}
+      <div className="flex flex-wrap items-center gap-3">
 
-      <div className="space-y-4">
+        <div className="rounded-xl bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+          {totalFiles} Files
+        </div>
 
-        {resumes.map((resume, index) => (
+        <Link
+          to="/history"
+          className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+        >
+          View All →
+        </Link>
 
-          <motion.div
-            key={resume._id}
-            initial={{
-              opacity: 0,
-              x: -25,
-            }}
-            animate={{
-              opacity: 1,
-              x: 0,
-            }}
-            transition={{
-              delay: index * 0.1,
-            }}
-            whileHover={{
-              y: -3,
-            }}
-            className="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900 lg:flex-row lg:items-center lg:justify-between"
-          >
+      </div>
 
-            {/* Left */}
+    </div>
 
-            <div className="flex items-center gap-4">
+    {/* Resume Cards */}
 
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
+    <div className="space-y-5">
 
-                <HiDocumentText className="text-3xl text-white" />
+      {resumes.map((resume, index) => (
 
-              </div>
+        <motion.div
+          key={resume._id}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+          whileHover={{ y: -3 }}
+          className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-sm hover:shadow-lg transition-all"
+        >
 
-              <div>
+          {/* Top */}
 
-                <h3 className="max-w-[260px] truncate text-lg font-semibold text-slate-900 dark:text-white">
+          <div className="flex items-start gap-4">
 
-                  {resume.fileName}
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
 
-                </h3>
+              <HiDocumentText className="text-3xl text-white" />
 
-                <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            </div>
 
-                  <HiCalendar />
+            <div className="flex-1 min-w-0">
 
-                  {new Date(
-                    resume.createdAt
-                  ).toLocaleDateString()}
+              <h3
+                className="text-lg font-semibold text-slate-900 dark:text-white break-words"
+                title={resume.fileName}
+              >
+                {resume.fileName}
+              </h3>
 
-                </div>
+              <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+
+                <HiCalendar />
+
+                {new Date(resume.createdAt).toLocaleDateString()}
 
               </div>
 
             </div>
 
-            {/* Right */}
+          </div>
 
-            <div className="flex flex-wrap items-center gap-5">
+          {/* Bottom */}
 
-              <div className="text-center">
+          <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+            <div className="flex flex-wrap gap-4">
+
+              <div className="rounded-xl bg-green-100 dark:bg-green-900/30 px-4 py-3 min-w-[120px]">
 
                 <p className="text-xs text-slate-500">
-
                   ATS Score
-
                 </p>
 
-                <div className="mt-2 rounded-xl bg-green-100 px-4 py-2 text-lg font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">
-
+                <p className="text-xl font-bold text-green-700 dark:text-green-400 mt-1">
                   {resume.score ?? 0}%
-
-                </div>
+                </p>
 
               </div>
 
-              <div className="text-center">
+              <div className="rounded-xl bg-blue-100 dark:bg-blue-900/30 px-4 py-3 min-w-[140px]">
 
-                <p className="text-xs text-slate-500">
-
-                  Status
-
-                </p>
-
-                <div className="mt-2 flex items-center gap-2 rounded-xl bg-blue-100 px-4 py-2 font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                <div className="flex items-center gap-2 font-semibold text-blue-700 dark:text-blue-400">
 
                   <HiArrowTrendingUp />
 
@@ -209,31 +179,30 @@ function RecentResume() {
 
               </div>
 
-              <Link
-                to="/analysis"
-                state={{
-                  analysis: resume,
-                  file: null,
-                }}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-              >
-
-                <HiEye />
-
-                View Analysis
-
-              </Link>
-
             </div>
 
-          </motion.div>
+            <Link
+              to={`/analysis/${resume._id}`}
+              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.02] hover:shadow-xl w-full lg:w-auto"
+            >
 
-        ))}
+              <HiEye />
 
-      </div>
+              View Analysis
 
-    </Card>
-  );
+            </Link>
+
+          </div>
+
+        </motion.div>
+
+      ))}
+
+    </div>
+
+  </Card>
+);
+
 }
 
 export default RecentResume;

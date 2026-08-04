@@ -1,23 +1,60 @@
-const fs = require("fs");
 const pdf = require("pdf-parse");
+const streamifier = require("streamifier");
 
 const Resume = require("../models/Resume");
 const Notification = require("../models/Notification");
+const cloudinary = require("../config/cloudinary");
 
 const {
   analyzeResume,
 } = require("../services/resumeAnalyzer");
 
 // =====================================
+// Upload Buffer To Cloudinary
+// =====================================
+
+const uploadToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "resume-analyzer",
+
+        // Upload PDF as RAW
+        resource_type: "raw",
+
+        // Keep original filename
+        use_filename: true,
+        unique_filename: true,
+
+        overwrite: true,
+      },
+
+      (error, result) => {
+
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve(result);
+
+      }
+    );
+
+    streamifier
+      .createReadStream(buffer)
+      .pipe(uploadStream);
+
+  });
+};
+
+// =====================================
 // Upload Resume
 // =====================================
 
 const uploadResume = async (req, res) => {
-  try {
 
-    // ==========================
-    // Validate File
-    // ==========================
+  try {
 
     if (!req.file) {
       return res.status(400).json({
@@ -25,10 +62,6 @@ const uploadResume = async (req, res) => {
         message: "Please upload a PDF resume.",
       });
     }
-
-    // ==========================
-    // Validate User
-    // ==========================
 
     if (!req.user) {
       return res.status(401).json({
@@ -38,25 +71,15 @@ const uploadResume = async (req, res) => {
     }
 
     // ==========================
-    // File Exists
+    // Extract PDF Text
     // ==========================
 
-    if (!fs.existsSync(req.file.path)) {
-      return res.status(500).json({
-        success: false,
-        message: "Uploaded file not found.",
-      });
-    }
+    const pdfData = await pdf(req.file.buffer);
 
-    // ==========================
-    // Read Resume
-    // ==========================
-
-    const buffer = fs.readFileSync(req.file.path);
-
-    const pdfData = await pdf(buffer);
-
-    if (!pdfData.text || pdfData.text.trim() === "") {
+    if (
+      !pdfData.text ||
+      pdfData.text.trim() === ""
+    ) {
       return res.status(400).json({
         success: false,
         message: "Unable to extract text from resume.",
@@ -65,21 +88,30 @@ const uploadResume = async (req, res) => {
 
     const extractedText = pdfData.text;
 
+    // ==========================
+    // Upload To Cloudinary
+    // ==========================
+
+    const uploadedFile = await uploadToCloudinary(
+      req.file.buffer
+    );
+
+    console.log("========== CLOUDINARY ==========");
+    console.log(uploadedFile);
+    console.log("Secure URL :", uploadedFile.secure_url);
+    console.log("URL        :", uploadedFile.url);
+    console.log("Public ID  :", uploadedFile.public_id);
+    console.log("Type       :", uploadedFile.type);
+    console.log("Resource   :", uploadedFile.resource_type);
+    console.log("================================");
+
     const jobDescription =
       req.body.jobDescription || "";
-
-    // ==========================
-    // Analyze Resume
-    // ==========================
 
     const analysis = analyzeResume(
       extractedText,
       jobDescription
     );
-
-    // ==========================
-    // Highest Existing Score
-    // ==========================
 
     const highestResume =
       await Resume.findOne({
@@ -90,8 +122,7 @@ const uploadResume = async (req, res) => {
 
     const previousHighest =
       highestResume?.score || 0;
-
-    // ==========================
+          // ==========================
     // Save Resume
     // ==========================
 
@@ -103,7 +134,8 @@ const uploadResume = async (req, res) => {
 
       fileSize: req.file.size,
 
-      filePath: `/uploads/${req.file.filename}`,
+      // Save Cloudinary URL
+      filePath: uploadedFile.secure_url,
 
       extractedText,
 
@@ -130,8 +162,7 @@ const uploadResume = async (req, res) => {
     });
 
     // ==========================
-    // Notification
-    // Resume Uploaded
+    // Notifications
     // ==========================
 
     await Notification.create({
@@ -146,11 +177,6 @@ const uploadResume = async (req, res) => {
 
     });
 
-    // ==========================
-    // Notification
-    // AI Analysis Completed
-    // ==========================
-
     await Notification.create({
 
       user: req.user._id,
@@ -162,11 +188,6 @@ const uploadResume = async (req, res) => {
       type: "analysis",
 
     });
-
-    // ==========================
-    // Notification
-    // New Highest ATS
-    // ==========================
 
     if (analysis.score > previousHighest) {
 
@@ -183,7 +204,8 @@ const uploadResume = async (req, res) => {
       });
 
     }
-        // ==========================
+
+    // ==========================
     // Response
     // ==========================
 
@@ -203,8 +225,9 @@ const uploadResume = async (req, res) => {
 
   } catch (error) {
 
-    console.error("UPLOAD ERROR:");
+    console.error("========== UPLOAD ERROR ==========");
     console.error(error);
+    console.error("==================================");
 
     return res.status(500).json({
 
