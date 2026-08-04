@@ -1,6 +1,63 @@
 const Resume = require("../models/Resume");
 
-// Get logged-in user's resume history
+// ==========================================
+// Search Resume History
+// ==========================================
+
+const searchHistory = async (req, res) => {
+  try {
+    const keyword = req.query.keyword || "";
+
+    const resumes = await Resume.find({
+      user: req.user._id,
+      $or: [
+        {
+          fileName: {
+            $regex: keyword,
+            $options: "i",
+          },
+        },
+        {
+          summary: {
+            $regex: keyword,
+            $options: "i",
+          },
+        },
+        {
+  extractedText: {
+    $regex: keyword,
+    $options: "i",
+  },
+},
+{
+  skills: {
+    $regex: keyword,
+    $options: "i",
+  },
+},
+      ],
+    })
+      .sort({ createdAt: -1 })
+      .limit(8);
+
+    res.status(200).json({
+      success: true,
+      resumes,
+    });
+  } catch (error) {
+    console.error("Search Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Search failed.",
+    });
+  }
+};
+
+// ==========================================
+// Get Resume History
+// ==========================================
+
 const getResumeHistory = async (req, res) => {
   try {
     const resumes = await Resume.find({
@@ -22,7 +79,10 @@ const getResumeHistory = async (req, res) => {
   }
 };
 
-// Delete logged-in user's resume
+// ==========================================
+// Delete Resume
+// ==========================================
+
 const deleteResume = async (req, res) => {
   try {
     const { id } = req.params;
@@ -55,7 +115,10 @@ const deleteResume = async (req, res) => {
   }
 };
 
-// Dashboard statistics
+// ==========================================
+// Dashboard Stats
+// ==========================================
+
 const getStats = async (req, res) => {
   try {
     const resumes = await Resume.find({
@@ -65,17 +128,24 @@ const getStats = async (req, res) => {
     const totalResumes = resumes.length;
 
     const averageScore =
-      totalResumes > 0
-        ? Math.round(
-            resumes.reduce((sum, resume) => sum + (resume.score || 0), 0) /
-              totalResumes
-          )
-        : 0;
+      totalResumes === 0
+        ? 0
+        : Math.round(
+            resumes.reduce(
+              (sum, resume) =>
+                sum + (resume.score || 0),
+              0
+            ) / totalResumes
+          );
 
     const bestScore =
-      totalResumes > 0
-        ? Math.max(...resumes.map((resume) => resume.score || 0))
-        : 0;
+      totalResumes === 0
+        ? 0
+        : Math.max(
+            ...resumes.map(
+              (resume) => resume.score || 0
+            )
+          );
 
     res.status(200).json({
       success: true,
@@ -93,7 +163,11 @@ const getStats = async (req, res) => {
     });
   }
 };
-// Clear all resume history
+
+// ==========================================
+// Clear History
+// ==========================================
+
 const clearAllHistory = async (req, res) => {
   try {
     await Resume.deleteMany({
@@ -115,6 +189,7 @@ const clearAllHistory = async (req, res) => {
 };
 
 module.exports = {
+  searchHistory,
   getResumeHistory,
   deleteResume,
   getStats,

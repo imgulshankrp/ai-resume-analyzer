@@ -2,7 +2,11 @@ const fs = require("fs");
 const pdf = require("pdf-parse");
 
 const Resume = require("../models/Resume");
-const { analyzeResume } = require("../services/resumeAnalyzer");
+const Notification = require("../models/Notification");
+
+const {
+  analyzeResume,
+} = require("../services/resumeAnalyzer");
 
 // =====================================
 // Upload Resume
@@ -10,7 +14,10 @@ const { analyzeResume } = require("../services/resumeAnalyzer");
 
 const uploadResume = async (req, res) => {
   try {
-    // Validate uploaded file
+
+    // ==========================
+    // Validate File
+    // ==========================
 
     if (!req.file) {
       return res.status(400).json({
@@ -19,7 +26,9 @@ const uploadResume = async (req, res) => {
       });
     }
 
-    // Validate authenticated user
+    // ==========================
+    // Validate User
+    // ==========================
 
     if (!req.user) {
       return res.status(401).json({
@@ -28,7 +37,9 @@ const uploadResume = async (req, res) => {
       });
     }
 
-    // Check uploaded file exists
+    // ==========================
+    // File Exists
+    // ==========================
 
     if (!fs.existsSync(req.file.path)) {
       return res.status(500).json({
@@ -37,7 +48,9 @@ const uploadResume = async (req, res) => {
       });
     }
 
-    // Read PDF
+    // ==========================
+    // Read Resume
+    // ==========================
 
     const buffer = fs.readFileSync(req.file.path);
 
@@ -55,20 +68,35 @@ const uploadResume = async (req, res) => {
     const jobDescription =
       req.body.jobDescription || "";
 
-    // =====================================
-    // AI / Rule Based Analysis
-    // =====================================
+    // ==========================
+    // Analyze Resume
+    // ==========================
 
     const analysis = analyzeResume(
       extractedText,
       jobDescription
     );
 
-    // =====================================
+    // ==========================
+    // Highest Existing Score
+    // ==========================
+
+    const highestResume =
+      await Resume.findOne({
+        user: req.user._id,
+      }).sort({
+        score: -1,
+      });
+
+    const previousHighest =
+      highestResume?.score || 0;
+
+    // ==========================
     // Save Resume
-    // =====================================
+    // ==========================
 
     const resume = await Resume.create({
+
       user: req.user._id,
 
       fileName: req.file.originalname,
@@ -98,13 +126,69 @@ const uploadResume = async (req, res) => {
       status: "completed",
 
       aiProvider: "Rule Based Analyzer",
+
     });
 
-    // =====================================
+    // ==========================
+    // Notification
+    // Resume Uploaded
+    // ==========================
+
+    await Notification.create({
+
+      user: req.user._id,
+
+      title: "Resume Uploaded",
+
+      message: `${req.file.originalname} uploaded successfully.`,
+
+      type: "resume",
+
+    });
+
+    // ==========================
+    // Notification
+    // AI Analysis Completed
+    // ==========================
+
+    await Notification.create({
+
+      user: req.user._id,
+
+      title: "AI Analysis Completed",
+
+      message: `ATS Score: ${analysis.score}%`,
+
+      type: "analysis",
+
+    });
+
+    // ==========================
+    // Notification
+    // New Highest ATS
+    // ==========================
+
+    if (analysis.score > previousHighest) {
+
+      await Notification.create({
+
+        user: req.user._id,
+
+        title: "New Highest ATS Score",
+
+        message: `Congratulations! Your new highest ATS score is ${analysis.score}%.`,
+
+        type: "analysis",
+
+      });
+
+    }
+        // ==========================
     // Response
-    // =====================================
+    // ==========================
 
     return res.status(201).json({
+
       success: true,
 
       message: "Resume analyzed successfully.",
@@ -114,23 +198,29 @@ const uploadResume = async (req, res) => {
       analysis: resume.analysis,
 
       resume,
+
     });
 
   } catch (error) {
 
-    console.error("UPLOAD ERROR");
+    console.error("UPLOAD ERROR:");
     console.error(error);
 
     return res.status(500).json({
+
       success: false,
+
       message: "Resume upload failed.",
+
       error:
         process.env.NODE_ENV === "development"
           ? error.message
           : undefined,
+
     });
 
   }
+
 };
 
 module.exports = {

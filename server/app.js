@@ -11,6 +11,10 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const compareRoutes = require("./routes/compareRoutes");
 const resumeRoutes = require("./routes/resume"); // NEW
+const profileRoutes = require("./routes/profileRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const dangerRoutes = require("./routes/dangerRoutes");
+const googleRoutes = require("./routes/googleRoutes");
 
 const app = express();
 
@@ -66,6 +70,12 @@ app.use(
 app.use("/api/health", healthRoutes);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use(
+  "/api/notifications",
+  notificationRoutes
+);
+
 
 app.use("/api/upload", uploadRoutes);
 
@@ -80,6 +90,8 @@ app.use("/api/compare", compareRoutes);
 // NEW Resume Routes
 
 app.use("/api/resume", resumeRoutes);
+app.use("/api/danger", dangerRoutes);
+app.use("/api/google", googleRoutes);
 
 // ======================================
 // 404 Handler

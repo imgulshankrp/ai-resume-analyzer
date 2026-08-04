@@ -40,8 +40,8 @@ const getResumeHistory = async (req, res) => {
     })
       .sort({ createdAt: -1 })
       .select(
-        "_id fileName score jobMatch createdAt status"
-      );
+  "_id fileName filePath fileSize score jobMatch skills missingSkills suggestions summary extractedText createdAt"
+);
 
     return res.status(200).json({
       success: true,

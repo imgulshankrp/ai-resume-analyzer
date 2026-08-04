@@ -4,61 +4,50 @@ const router = express.Router();
 const protect = require("../middleware/authMiddleware");
 
 const {
-  getResumeHistory,
-  getStats,
-  deleteResume,
-  clearAllHistory,
-  searchHistory,
-} = require("../controllers/historyController");
+  getNotifications,
+  markAsRead,
+  markAllAsRead,
+  deleteNotification,
+} = require("../controllers/notificationController");
 
 // =====================================
-// Search Resume History
-// =====================================
-
-router.get(
-  "/search",
-  protect,
-  searchHistory
-);
-
-// =====================================
-// Get Resume History
+// Get All Notifications
 // =====================================
 
 router.get(
   "/",
   protect,
-  getResumeHistory
+  getNotifications
 );
 
 // =====================================
-// Dashboard Statistics
+// Mark Single Notification As Read
 // =====================================
 
-router.get(
-  "/stats",
+router.put(
+  "/:id/read",
   protect,
-  getStats
+  markAsRead
 );
 
 // =====================================
-// Clear All Resume History
+// Mark All As Read
 // =====================================
 
-router.delete(
-  "/clear",
+router.put(
+  "/read-all",
   protect,
-  clearAllHistory
+  markAllAsRead
 );
 
 // =====================================
-// Delete Single Resume
+// Delete Notification
 // =====================================
 
 router.delete(
   "/:id",
   protect,
-  deleteResume
+  deleteNotification
 );
 
 module.exports = router;
