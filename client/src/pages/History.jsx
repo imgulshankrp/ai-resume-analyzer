@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { API_URL } from "../config";
+import MainLayout from "../components/layout/MainLayout";
 
 function History() {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ function History() {
       });
 
       setResumes((prev) =>
-        prev.filter((resume) => resume._id !== selectedResume._id)
+        prev.filter((resume) => resume._id !== selectedResume._id),
       );
 
       toast.success("Resume deleted successfully.");
@@ -109,19 +110,19 @@ function History() {
     }
   };
 
- const handleViewAnalysis = (resume) => {
-  navigate(`/analysis/${resume._id}`, {
-    state: {
-      resume,
-    },
-  });
-};
+  const handleViewAnalysis = (resume) => {
+    navigate(`/analysis/${resume._id}`, {
+      state: {
+        resume,
+      },
+    });
+  };
   const filteredResumes = useMemo(() => {
     let data = [...resumes];
 
     if (searchTerm.trim()) {
       data = data.filter((resume) =>
-        resume.fileName?.toLowerCase().includes(searchTerm.toLowerCase())
+        resume.fileName?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -147,20 +148,21 @@ function History() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
-        <div className="text-2xl font-bold text-gray-700 dark:text-gray-200 animate-pulse">
-          Loading Resume History...
+      <MainLayout>
+        <div className="min-h-[70vh] flex items-center justify-center bg-gray-100 dark:bg-gray-950">
+          <div className="text-2xl font-bold text-gray-700 dark:text-gray-200 animate-pulse">
+            Loading Resume History...
+          </div>
         </div>
-      </div>
+      </MainLayout>
     );
   }
-    return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 transition-colors duration-300">
+  return (
+  <MainLayout>
+    <div className="min-h-full bg-gray-100 dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
         {/* Header */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
-
           <div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
               Resume History
@@ -172,7 +174,6 @@ function History() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-
             <button
               onClick={() => setShowClearModal(true)}
               className="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium shadow-lg transition-all duration-300 hover:scale-105"
@@ -186,15 +187,12 @@ function History() {
             >
               + Analyze Resume
             </Link>
-
           </div>
         </div>
 
         {/* Search & Sort */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg p-5 mb-8">
-
           <div className="flex flex-col md:flex-row gap-4 justify-between">
-
             <input
               type="text"
               placeholder="🔍 Search resume..."
@@ -245,19 +243,14 @@ function History() {
               <option value="highest">Highest ATS</option>
               <option value="lowest">Lowest ATS</option>
             </select>
-
           </div>
         </div>
 
         {/* Empty State */}
 
         {filteredResumes.length === 0 ? (
-
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl shadow-lg py-20 text-center">
-
-            <div className="text-6xl mb-4">
-              📄
-            </div>
+            <div className="text-6xl mb-4">📄</div>
 
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               No Resume Found
@@ -266,15 +259,10 @@ function History() {
             <p className="mt-3 text-gray-500 dark:text-gray-400">
               Upload a resume or try another search.
             </p>
-
           </div>
-
         ) : (
-
           <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-
             {filteredResumes.map((resume) => (
-
               <motion.div
                 key={resume._id}
                 whileHover={{
@@ -302,7 +290,6 @@ function History() {
                 </h2>
 
                 <div className="flex flex-wrap gap-2 mt-4">
-
                   <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
                     AI Analyzed
                   </span>
@@ -310,10 +297,8 @@ function History() {
                   <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
                     Gemini AI
                   </span>
-
                 </div>
-                                <div className="mt-6 space-y-4">
-
+                <div className="mt-6 space-y-4">
                   {/* ATS Score */}
 
                   <div className="flex justify-between items-center">
@@ -326,8 +311,8 @@ function History() {
                         (resume.score || 0) >= 80
                           ? "text-green-500"
                           : (resume.score || 0) >= 60
-                          ? "text-yellow-500"
-                          : "text-red-500"
+                            ? "text-yellow-500"
+                            : "text-red-500"
                       }`}
                     >
                       {resume.score || 0}%
@@ -335,26 +320,23 @@ function History() {
                   </div>
 
                   <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-
                     <div
                       className={`h-full rounded-full transition-all duration-700 ${
                         (resume.score || 0) >= 80
                           ? "bg-green-500"
                           : (resume.score || 0) >= 60
-                          ? "bg-yellow-500"
-                          : "bg-red-500"
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
                       }`}
                       style={{
                         width: `${resume.score || 0}%`,
                       }}
                     />
-
                   </div>
 
                   {/* Job Match */}
 
                   <div className="flex justify-between">
-
                     <span className="text-gray-600 dark:text-gray-400">
                       Job Match
                     </span>
@@ -362,13 +344,11 @@ function History() {
                     <span className="font-semibold text-gray-900 dark:text-white">
                       {resume.jobMatch ?? resume.jdMatch ?? 0}%
                     </span>
-
                   </div>
 
                   {/* Skills */}
 
                   <div className="flex justify-between">
-
                     <span className="text-gray-600 dark:text-gray-400">
                       Skills Found
                     </span>
@@ -376,13 +356,11 @@ function History() {
                     <span className="font-semibold text-gray-900 dark:text-white">
                       {(resume.skills || resume.foundSkills || []).length}
                     </span>
-
                   </div>
 
                   {/* File Size */}
 
                   <div className="flex justify-between">
-
                     <span className="text-gray-600 dark:text-gray-400">
                       File Size
                     </span>
@@ -392,25 +370,20 @@ function History() {
                         ? `${(resume.fileSize / 1024).toFixed(1)} KB`
                         : "N/A"}
                     </span>
-
                   </div>
 
                   {/* Date */}
 
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(resume.createdAt).toLocaleString()}
                     </p>
-
                   </div>
-
                 </div>
 
                 {/* Buttons */}
 
                 <div className="grid grid-cols-2 gap-3 mt-6">
-
                   <button
                     onClick={() => handleViewAnalysis(resume)}
                     className="
@@ -444,26 +417,20 @@ function History() {
                   >
                     Delete
                   </button>
-
                 </div>
-
               </motion.div>
-
             ))}
-
           </div>
-
         )}
-              {/* Delete Modal */}
+        {/* Delete Modal */}
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.25 }}
-            className="
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.25 }}
+              className="
               w-full
               max-w-md
               rounded-3xl
@@ -475,30 +442,26 @@ function History() {
               shadow-2xl
               p-7
             "
-          >
+            >
+              <h2 className="text-2xl font-bold text-red-600">Delete Resume</h2>
 
-            <h2 className="text-2xl font-bold text-red-600">
-              Delete Resume
-            </h2>
+              <p className="mt-4 text-gray-600 dark:text-gray-400 leading-7">
+                Are you sure you want to delete
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {" "}
+                  {selectedResume?.fileName}
+                </span>
+                ?
+              </p>
 
-            <p className="mt-4 text-gray-600 dark:text-gray-400 leading-7">
-              Are you sure you want to delete
-              <span className="font-semibold text-gray-900 dark:text-white">
-                {" "}
-                {selectedResume?.fileName}
-              </span>
-              ?
-            </p>
+              <p className="mt-2 text-sm text-red-500">
+                This action cannot be undone.
+              </p>
 
-            <p className="mt-2 text-sm text-red-500">
-              This action cannot be undone.
-            </p>
-
-            <div className="flex justify-end gap-3 mt-8">
-
-              <button
-                onClick={closeDeleteModal}
-                className="
+              <div className="flex justify-end gap-3 mt-8">
+                <button
+                  onClick={closeDeleteModal}
+                  className="
                   px-5
                   py-2.5
                   rounded-xl
@@ -513,13 +476,13 @@ function History() {
                   dark:hover:bg-gray-700
                   transition
                 "
-              >
-                Cancel
-              </button>
+                >
+                  Cancel
+                </button>
 
-              <button
-                onClick={handleDelete}
-                className="
+                <button
+                  onClick={handleDelete}
+                  className="
                   px-5
                   py-2.5
                   rounded-xl
@@ -531,27 +494,23 @@ function History() {
                   duration-300
                   hover:scale-105
                 "
-              >
-                Delete
-              </button>
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
 
-            </div>
+        {/* Clear History Modal */}
 
-          </motion.div>
-
-        </div>
-      )}
-
-      {/* Clear History Modal */}
-
-      {showClearModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.25 }}
-            className="
+        {showClearModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.25 }}
+              className="
               w-full
               max-w-md
               rounded-3xl
@@ -563,29 +522,26 @@ function History() {
               shadow-2xl
               p-7
             "
-          >
+            >
+              <h2 className="text-2xl font-bold text-red-600">Clear History</h2>
 
-            <h2 className="text-2xl font-bold text-red-600">
-              Clear History
-            </h2>
+              <p className="mt-4 text-gray-600 dark:text-gray-400 leading-7">
+                Are you sure you want to delete
+                <span className="font-semibold text-red-500">
+                  {" "}
+                  all resume history
+                </span>
+                ?
+              </p>
 
-            <p className="mt-4 text-gray-600 dark:text-gray-400 leading-7">
-              Are you sure you want to delete
-              <span className="font-semibold text-red-500">
-                {" "}all resume history
-              </span>
-              ?
-            </p>
+              <p className="mt-3 text-sm text-red-500">
+                This action cannot be undone.
+              </p>
 
-            <p className="mt-3 text-sm text-red-500">
-              This action cannot be undone.
-            </p>
-
-            <div className="flex justify-end gap-3 mt-8">
-
-              <button
-                onClick={() => setShowClearModal(false)}
-                className="
+              <div className="flex justify-end gap-3 mt-8">
+                <button
+                  onClick={() => setShowClearModal(false)}
+                  className="
                   px-5
                   py-2.5
                   rounded-xl
@@ -600,13 +556,13 @@ function History() {
                   dark:hover:bg-gray-700
                   transition
                 "
-              >
-                Cancel
-              </button>
+                >
+                  Cancel
+                </button>
 
-              <button
-                onClick={handleClearHistory}
-                className="
+                <button
+                  onClick={handleClearHistory}
+                  className="
                   px-5
                   py-2.5
                   rounded-xl
@@ -618,21 +574,17 @@ function History() {
                   duration-300
                   hover:scale-105
                 "
-              >
-                Delete All
-              </button>
-
-            </div>
-
-          </motion.div>
-
-        </div>
-      )}
-
+                >
+                  Delete All
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
-    </div>
+        </div>
+  </MainLayout>
   );
 }
 
 export default History;
-        

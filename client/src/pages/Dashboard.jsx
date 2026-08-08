@@ -4,10 +4,8 @@ import MainLayout from "../components/layout/MainLayout";
 import WelcomeBanner from "../components/dashboard/WelcomeBanner";
 import StatsCards from "../components/dashboard/StatsCards";
 import DashboardAnalytics from "../components/dashboard/DashboardAnalytics";
-
 import RecentResume from "../components/dashboard/RecentResume";
 import QuickActions from "../components/dashboard/QuickActions";
-
 import ActivityTimeline from "../components/dashboard/ActivityTimeline";
 import UserCard from "../components/dashboard/UserCard";
 import UpgradeCard from "../components/dashboard/UpgradeCard";
@@ -16,61 +14,128 @@ export default function Dashboard() {
   return (
     <MainLayout>
       <motion.div
-        className="mx-auto w-full max-w-[1600px] space-y-8"
+        className="
+          mx-auto
+          w-full
+          max-w-[1600px]
+          space-y-8
+          px-3
+          py-4
+          sm:px-5
+          sm:py-6
+          lg:px-8
+        "
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Welcome */}
+        {/* =========================
+            WELCOME
+        ========================== */}
         <WelcomeBanner />
 
-        {/* Stats */}
+        {/* =========================
+            STATISTICS
+        ========================== */}
         <StatsCards />
 
-        {/* Analytics */}
+        {/* =========================
+            ANALYTICS
+        ========================== */}
         <DashboardAnalytics />
 
-        {/* Recent Resume + Quick Actions */}
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-2 items-stretch">
-
+        {/* =========================
+            RECENT RESUME + QUICK ACTIONS
+        ========================== */}
+        <div
+          className="
+            grid
+            grid-cols-1
+            items-stretch
+            gap-6
+            lg:gap-8
+            xl:grid-cols-2
+          "
+        >
           <motion.div
-            className="h-full"
+            className="h-full min-w-0"
             initial={{ opacity: 0, x: -25 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{
+              duration: 0.45,
+              delay: 0.2,
+            }}
           >
             <RecentResume />
           </motion.div>
 
           <motion.div
-            className="h-full"
+            className="h-full min-w-0"
             initial={{ opacity: 0, x: 25 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{
+              duration: 0.45,
+              delay: 0.3,
+            }}
           >
             <QuickActions />
           </motion.div>
-
         </div>
 
-        {/* Timeline + User */}
-
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
-
-          <div className="xl:col-span-2">
-
+        {/* =========================
+            RECENT ACTIVITY + USER CARD
+        ========================== */}
+        <div
+          className="
+            grid
+            grid-cols-1
+            items-stretch
+            gap-6
+            lg:gap-8
+            xl:grid-cols-3
+          "
+        >
+          <motion.div
+            className="
+              min-w-0
+              xl:col-span-2
+            "
+            initial={{ opacity: 0, x: -25 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              duration: 0.45,
+              delay: 0.35,
+            }}
+          >
             <ActivityTimeline />
+          </motion.div>
 
-          </div>
-
-          <UserCard />
-
+          <motion.div
+            className="min-w-0"
+            initial={{ opacity: 0, x: 25 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              duration: 0.45,
+              delay: 0.4,
+            }}
+          >
+            <UserCard />
+          </motion.div>
         </div>
 
-        {/* Upgrade */}
-
-        <UpgradeCard />
-
+        {/* =========================
+            UPGRADE
+        ========================== */}
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.45,
+            delay: 0.45,
+          }}
+        >
+          <UpgradeCard />
+        </motion.div>
       </motion.div>
     </MainLayout>
   );

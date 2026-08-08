@@ -2,113 +2,485 @@ import { motion } from "framer-motion";
 import {
   HiArrowUpTray,
   HiSparkles,
-  HiDocumentChartBar,
-  HiCheckCircle,
   HiClock,
+  HiDocumentText,
 } from "react-icons/hi2";
 
-const activities = [
-  {
-    id: 1,
-    title: "Resume Uploaded",
-    description: "Your latest resume was uploaded successfully.",
-    time: "2 mins ago",
-    icon: HiArrowUpTray,
-    color: "bg-blue-500",
-  },
-  {
-    id: 2,
-    title: "ATS Analysis Completed",
-    description: "AI generated your ATS score and suggestions.",
-    time: "5 mins ago",
-    icon: HiSparkles,
-    color: "bg-purple-500",
-  },
-  {
-    id: 3,
-    title: "Report Downloaded",
-    description: "Resume analysis report exported as PDF.",
-    time: "Yesterday",
-    icon: HiDocumentChartBar,
-    color: "bg-emerald-500",
-  },
-  {
-    id: 4,
-    title: "Profile Updated",
-    description: "Your profile information was updated.",
-    time: "2 days ago",
-    icon: HiCheckCircle,
-    color: "bg-orange-500",
-  },
-];
+import useDashboard from "../../hooks/useDashboard";
+
+
+/* =========================================
+   FORMAT ACTIVITY TIME
+========================================= */
+
+function formatTime(date) {
+  if (!date) {
+    return "";
+  }
+
+  const activityDate = new Date(date);
+
+  if (Number.isNaN(activityDate.getTime())) {
+    return "";
+  }
+
+  const now = new Date();
+
+  const diff = now.getTime() - activityDate.getTime();
+
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) {
+    return "Just now";
+  }
+
+  if (minutes < 60) {
+    return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
+  }
+
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  }
+
+  if (days === 1) {
+    return "Yesterday";
+  }
+
+  if (days < 7) {
+    return `${days} days ago`;
+  }
+
+  return activityDate.toLocaleDateString();
+}
+
+
+/* =========================================
+   ACTIVITY ICON
+========================================= */
+
+function getActivityIcon(type) {
+  switch (type) {
+    case "upload":
+      return HiArrowUpTray;
+
+    case "analysis":
+      return HiSparkles;
+
+    default:
+      return HiDocumentText;
+  }
+}
+
+
+/* =========================================
+   ACTIVITY COLOR
+========================================= */
+
+function getActivityColor(type) {
+  switch (type) {
+    case "upload":
+      return "bg-blue-500";
+
+    case "analysis":
+      return "bg-purple-500";
+
+    default:
+      return "bg-emerald-500";
+  }
+}
+
+
+/* =========================================
+   ACTIVITY TIMELINE
+========================================= */
 
 export default function ActivityTimeline() {
+  const {
+    activities = [],
+    loading,
+  } = useDashboard();
+
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 25 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+      initial={{
+        opacity: 0,
+        y: 25,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.4,
+      }}
+      className="
+        w-full
+        overflow-hidden
+        rounded-3xl
+        border
+        border-slate-200
+        bg-white
+        p-4
+        shadow-sm
+        sm:p-6
+        dark:border-slate-700
+        dark:bg-slate-900
+      "
     >
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+
+      {/* =====================================
+          HEADER
+      ====================================== */}
+
+      <div
+        className="
+          mb-6
+          flex
+          items-start
+          justify-between
+          gap-4
+        "
+      >
+        <div className="min-w-0">
+
+          <h2
+            className="
+              text-xl
+              font-bold
+              text-slate-900
+              sm:text-2xl
+              dark:text-white
+            "
+          >
             Recent Activity
           </h2>
 
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
+          <p
+            className="
+              mt-1
+              text-sm
+              text-slate-500
+              sm:text-base
+              dark:text-slate-400
+            "
+          >
             Your latest AI resume activities
           </p>
+
         </div>
 
-        <HiClock className="text-3xl text-indigo-500" />
+
+        {/* Clock */}
+
+        <div
+          className="
+            flex
+            h-10
+            w-10
+            flex-shrink-0
+            items-center
+            justify-center
+            rounded-2xl
+            bg-blue-100
+            sm:h-12
+            sm:w-12
+            dark:bg-blue-900/40
+          "
+        >
+          <HiClock
+            className="
+              text-xl
+              text-blue-600
+              sm:text-2xl
+              dark:text-blue-400
+            "
+          />
+        </div>
+
       </div>
 
-      <div className="space-y-6">
-        {activities.map((activity, index) => {
-          const Icon = activity.icon;
 
-          return (
-            <motion.div
-              key={activity.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{
-                delay: index * 0.1,
-              }}
-              className="flex gap-4"
-            >
-              <div className="flex flex-col items-center">
+      {/* =====================================
+          LOADING STATE
+      ====================================== */}
+
+      {loading && (
+        <div className="space-y-4">
+
+          {[1, 2, 3].map((item) => (
+            <div
+              key={item}
+              className="
+                h-24
+                animate-pulse
+                rounded-2xl
+                bg-slate-100
+                dark:bg-slate-800
+              "
+            />
+          ))}
+
+        </div>
+      )}
+
+
+      {/* =====================================
+          EMPTY STATE
+      ====================================== */}
+
+      {!loading && activities.length === 0 && (
+        <div
+          className="
+            flex
+            min-h-[200px]
+            flex-col
+            items-center
+            justify-center
+            rounded-2xl
+            border
+            border-dashed
+            border-slate-300
+            bg-slate-50
+            px-5
+            text-center
+            dark:border-slate-700
+            dark:bg-slate-800/50
+          "
+        >
+
+          <div
+            className="
+              mb-4
+              flex
+              h-14
+              w-14
+              items-center
+              justify-center
+              rounded-full
+              bg-slate-200
+              dark:bg-slate-700
+            "
+          >
+            <HiClock
+              className="
+                text-3xl
+                text-slate-400
+                dark:text-slate-500
+              "
+            />
+          </div>
+
+
+          <h3
+            className="
+              text-lg
+              font-semibold
+              text-slate-700
+              dark:text-slate-200
+            "
+          >
+            No recent activity
+          </h3>
+
+
+          <p
+            className="
+              mt-1
+              max-w-md
+              text-sm
+              text-slate-500
+              dark:text-slate-400
+            "
+          >
+            Your resume activities will appear here after
+            you upload and analyze a resume.
+          </p>
+
+        </div>
+      )}
+
+
+      {/* =====================================
+          ACTIVITIES
+      ====================================== */}
+
+      {!loading && activities.length > 0 && (
+        <div className="space-y-5">
+
+          {activities.map((activity, index) => {
+            const Icon = getActivityIcon(activity.type);
+
+            const color = getActivityColor(
+              activity.type
+            );
+
+
+            return (
+              <motion.div
+                key={
+                  activity.id ||
+                  `${activity.type}-${index}`
+                }
+                initial={{
+                  opacity: 0,
+                  x: -20,
+                }}
+                animate={{
+                  opacity: 1,
+                  x: 0,
+                }}
+                transition={{
+                  duration: 0.35,
+                  delay: index * 0.08,
+                }}
+                className="
+                  flex
+                  min-w-0
+                  gap-3
+                  sm:gap-4
+                "
+              >
+
+                {/* =================================
+                    ICON + CONNECTING LINE
+                ================================== */}
+
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-full ${activity.color} text-white shadow-lg`}
+                  className="
+                    flex
+                    flex-shrink-0
+                    flex-col
+                    items-center
+                  "
                 >
-                  <Icon className="text-xl" />
+
+                  <div
+                    className={`
+                      flex
+                      h-10
+                      w-10
+                      items-center
+                      justify-center
+                      rounded-full
+                      text-white
+                      shadow-md
+                      sm:h-12
+                      sm:w-12
+                      ${color}
+                    `}
+                  >
+                    <Icon
+                      className="
+                        text-lg
+                        sm:text-xl
+                      "
+                    />
+                  </div>
+
+
+                  {index !== activities.length - 1 && (
+                    <div
+                      className="
+                        mt-2
+                        min-h-[35px]
+                        w-0.5
+                        flex-1
+                        bg-slate-200
+                        dark:bg-slate-700
+                      "
+                    />
+                  )}
+
                 </div>
 
-                {index !== activities.length - 1 && (
-                  <div className="mt-2 h-12 w-0.5 bg-slate-200 dark:bg-slate-700" />
-                )}
-              </div>
 
-              <div className="flex-1 rounded-2xl bg-slate-50 p-4 transition hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-slate-900 dark:text-white">
-                    {activity.title}
-                  </h3>
+                {/* =================================
+                    ACTIVITY CONTENT
+                ================================== */}
 
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {activity.time}
-                  </span>
+                <div
+                  className="
+                    min-w-0
+                    flex-1
+                    rounded-2xl
+                    bg-slate-50
+                    p-3
+                    transition
+                    duration-200
+                    hover:bg-slate-100
+                    sm:p-4
+                    dark:bg-slate-800
+                    dark:hover:bg-slate-700
+                  "
+                >
+
+                  {/* Title + Time */}
+
+                  <div
+                    className="
+                      flex
+                      flex-col
+                      gap-1
+                      sm:flex-row
+                      sm:items-center
+                      sm:justify-between
+                      sm:gap-3
+                    "
+                  >
+
+                    <h3
+                      className="
+                        break-words
+                        font-semibold
+                        text-slate-900
+                        dark:text-white
+                      "
+                    >
+                      {activity.title}
+                    </h3>
+
+
+                    <span
+                      className="
+                        flex-shrink-0
+                        text-xs
+                        text-slate-500
+                        dark:text-slate-400
+                      "
+                    >
+                      {formatTime(activity.time)}
+                    </span>
+
+                  </div>
+
+
+                  {/* Description */}
+
+                  <p
+                    className="
+                      mt-2
+                      break-words
+                      text-sm
+                      leading-6
+                      text-slate-600
+                      dark:text-slate-400
+                    "
+                  >
+                    {activity.description}
+                  </p>
+
                 </div>
 
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                  {activity.description}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+              </motion.div>
+            );
+          })}
+
+        </div>
+      )}
+
     </motion.div>
   );
 }

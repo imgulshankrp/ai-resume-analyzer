@@ -1,11 +1,9 @@
 import { motion } from "framer-motion";
 import MainLayout from "../components/layout/MainLayout";
 
-import AccountSection from "../components/settings/AccountSection";
 import AppearanceSection from "../components/settings/AppearanceSection";
 import NotificationSection from "../components/settings/NotificationSection";
 import SecuritySection from "../components/settings/SecuritySection";
- import PrivacySection from "../components/settings/PrivacySection";
 import DangerZone from "../components/settings/DangerZone";
 
 export default function Settings() {
@@ -15,51 +13,86 @@ export default function Settings() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="mx-auto max-w-7xl space-y-8"
+        className="mx-auto w-full max-w-6xl space-y-6 px-3 sm:px-5 lg:px-6 pb-8"
       >
-        {/* Header */}
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 p-8 shadow-2xl">
-          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+        {/* ================================
+            SETTINGS HEADER
+        ================================= */}
+
+        <div className="rounded-2xl border border-cyan-400/20 bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 p-5 sm:p-6 shadow-lg">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
             <div>
-              <h1 className="text-4xl font-bold text-white">
-                ⚙️ Settings
-              </h1>
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 text-2xl backdrop-blur-sm">
+                  ⚙️
+                </div>
 
-              <p className="mt-3 max-w-2xl text-blue-100 text-lg">
-                Manage your account, security, notifications,
-                appearance and privacy preferences from one place.
-              </p>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                    Settings
+                  </h1>
+
+                  <p className="mt-1 text-sm text-blue-100">
+                    Manage your application preferences and security.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="rounded-2xl border border-white/20 bg-white/10 px-6 py-5 backdrop-blur-md">
-              <p className="text-sm text-blue-100">
-                Account Status
-              </p>
+            {/* Account Status */}
 
-              <h2 className="mt-2 text-3xl font-bold text-white">
-                Active
-              </h2>
+            <div className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-400/20">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              </div>
 
-              <p className="mt-2 text-sm text-blue-100">
-                Everything is configured correctly.
-              </p>
+              <div>
+                <p className="text-xs text-blue-100">
+                  Account Status
+                </p>
+
+                <p className="text-base font-bold text-white">
+                  Active
+                </p>
+              </div>
             </div>
+
           </div>
         </div>
 
-        {/* Sections */}
-        <AccountSection />
+        {/* ================================
+            APPEARANCE
+        ================================= */}
 
         <AppearanceSection />
 
+        {/* ================================
+            NOTIFICATIONS
+        ================================= */}
+
         <NotificationSection />
+
+        {/* ================================
+            SECURITY
+        ================================= */}
 
         <SecuritySection />
 
-        {/* Enable later */}
-        {/* <PrivacySection /> */}
+        {/* ================================
+            PRIVACY
+        ================================= */}
+
+        {/*
+        <PrivacySection />
+        */}
+
+        {/* ================================
+            DANGER ZONE
+        ================================= */}
 
         <DangerZone />
+
       </motion.div>
     </MainLayout>
   );

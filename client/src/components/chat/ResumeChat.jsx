@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import { FileText, MessageCircle } from "lucide-react";
 import { API_URL } from "../../config";
 
 function ResumeChat({ resumeText }) {
@@ -63,7 +64,6 @@ function ResumeChat({ resumeText }) {
       ]);
 
       toast.success("Response generated successfully!");
-
     } catch (err) {
       console.error(err);
 
@@ -90,247 +90,499 @@ function ResumeChat({ resumeText }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 25 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.35 }}
       className="
-        mt-10
+        flex
+        h-[calc(100vh-105px)]
+        min-h-[560px]
+        w-full
+        flex-col
         overflow-hidden
         rounded-3xl
         border
         border-slate-200
         bg-white
         shadow-xl
-        transition-all
-        duration-300
         dark:border-slate-800
         dark:bg-slate-900
       "
     >
-
-    
-          {/* ===========================
-            Header
-      =========================== */}
-
-      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 px-6 py-7">
-
-        <motion.h2
-          initial={{ opacity: 0, x: -15 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-3xl font-bold text-white"
-        >
-          🤖 Resume AI Assistant
-        </motion.h2>
-
-        <p className="mt-2 text-purple-100">
-          Ask anything about your uploaded resume and get AI-powered guidance.
-        </p>
-
-      </div>
-
-      {/* ===========================
-            Chat Body
-      =========================== */}
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
 
       <div
         className="
-          h-[380px]
-          sm:h-[460px]
+          shrink-0
+          border-b
+          border-white/10
+          bg-gradient-to-r
+          from-blue-700
+          via-indigo-700
+          to-violet-700
+          px-6
+          py-5
+          sm:px-8
+        "
+      >
+        <div className="flex items-center gap-4">
+
+          {/* Resume Chat Icon */}
+
+          <div
+            className="
+              flex
+              h-12
+              w-12
+              shrink-0
+              items-center
+              justify-center
+              rounded-2xl
+              bg-white/15
+              shadow-lg
+              ring-1
+              ring-white/20
+              backdrop-blur-sm
+            "
+          >
+            <div className="relative">
+
+              <FileText
+                className="
+                  h-7
+                  w-7
+                  text-white
+                "
+              />
+
+              <MessageCircle
+                className="
+                  absolute
+                  -bottom-1
+                  -right-2
+                  h-4
+                  w-4
+                  fill-blue-600
+                  text-white
+                "
+              />
+
+            </div>
+          </div>
+
+          {/* Heading */}
+
+          <div>
+
+            <motion.h2
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35 }}
+              className="
+                text-xl
+                font-bold
+                tracking-tight
+                text-white
+                sm:text-2xl
+              "
+            >
+              Resume Chat Assistant
+            </motion.h2>
+
+            <p
+              className="
+                mt-1
+                text-sm
+                font-medium
+                text-blue-100
+              "
+            >
+              Chat with your resume and get personalized career guidance.
+            </p>
+
+          </div>
+
+        </div>
+      </div>
+
+      {/* =====================================================
+          CHAT AREA
+      ===================================================== */}
+
+      <div
+        className="
+          min-h-0
+          flex-1
           overflow-y-auto
           bg-slate-50
-          p-5
+          px-4
+          py-4
+          sm:px-6
           dark:bg-slate-950
         "
       >
 
+        {/* ===================================================
+            EMPTY STATE
+        =================================================== */}
+
         {messages.length === 0 && (
 
-          <div className="mt-10 text-center">
+          <div className="flex h-full flex-col justify-center">
 
-            <h3 className="mb-8 text-2xl font-bold text-slate-800 dark:text-white">
-              Start a Conversation
-            </h3>
+            <div className="mx-auto w-full max-w-4xl">
 
-            <div className="space-y-4">
+              <div className="mb-5 text-center">
 
-              {suggestions.map((item, index) => (
-
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setQuestion(item)}
+                <div
                   className="
-                    cursor-pointer
+                    mx-auto
+                    mb-3
+                    flex
+                    h-11
+                    w-11
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-blue-100
+                    text-blue-600
+                    dark:bg-blue-900/30
+                    dark:text-blue-400
+                  "
+                >
+                  <MessageCircle className="h-5 w-5" />
+                </div>
+
+                <h3
+                  className="
+                    text-xl
+                    font-bold
+                    text-slate-800
+                    dark:text-white
+                  "
+                >
+                  Start a Conversation
+                </h3>
+
+                <p
+                  className="
+                    mt-1
+                    text-sm
+                    text-slate-500
+                    dark:text-slate-400
+                  "
+                >
+                  Choose a question or ask anything about your resume.
+                </p>
+
+              </div>
+
+              {/* Suggestions */}
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+                {suggestions.map((item, index) => (
+
+                  <motion.button
+                    key={index}
+                    type="button"
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setQuestion(item)}
+                    className="
+                      flex
+                      min-h-[52px]
+                      items-center
+                      rounded-xl
+                      border
+                      border-slate-200
+                      bg-white
+                      px-4
+                      text-left
+                      text-sm
+                      font-medium
+                      text-slate-700
+                      shadow-sm
+                      transition-all
+                      duration-200
+                      hover:border-blue-400
+                      hover:bg-blue-50
+                      hover:shadow-md
+                      dark:border-slate-700
+                      dark:bg-slate-900
+                      dark:text-slate-200
+                      dark:hover:border-blue-500
+                      dark:hover:bg-slate-800
+                    "
+                  >
+
+                    <span
+                      className="
+                        mr-3
+                        flex
+                        h-7
+                        w-7
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-lg
+                        bg-blue-100
+                        text-blue-600
+                        dark:bg-blue-900/30
+                        dark:text-blue-400
+                      "
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </span>
+
+                    <span>
+                      {item}
+                    </span>
+
+                  </motion.button>
+
+                ))}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )}
+
+        {/* ===================================================
+            MESSAGES
+        =================================================== */}
+
+        {messages.length > 0 && (
+
+          <div className="mx-auto w-full max-w-4xl">
+
+            {messages.map((msg, index) => (
+
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`mb-4 flex ${
+                  msg.role === "user"
+                    ? "justify-end"
+                    : "justify-start"
+                }`}
+              >
+
+                <div
+                  className={`
+                    max-w-[90%]
+                    rounded-2xl
+                    px-4
+                    py-3
+                    text-sm
+                    shadow-sm
+                    sm:max-w-[78%]
+                    ${
+                      msg.role === "user"
+                        ? "bg-blue-600 text-white"
+                        : "border border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                    }
+                  `}
+                >
+
+                  <div className="mb-1 flex items-center gap-2 text-xs font-bold opacity-80">
+
+                    {msg.role === "user" ? (
+                      <>
+                        <span>👤</span>
+                        <span>You</span>
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="h-3.5 w-3.5" />
+                        <span>Resume AI</span>
+                      </>
+                    )}
+
+                  </div>
+
+                  <div className="whitespace-pre-wrap leading-relaxed">
+                    {msg.text}
+                  </div>
+
+                </div>
+
+              </motion.div>
+
+            ))}
+
+            {/* Loading */}
+
+            {loading && (
+
+              <div className="mb-4 flex justify-start">
+
+                <div
+                  className="
                     rounded-2xl
                     border
                     border-slate-200
                     bg-white
-                    p-4
-                    text-left
-                    shadow
-                    transition-all
-                    hover:border-purple-400
-                    hover:bg-purple-50
+                    px-4
+                    py-3
+                    shadow-sm
                     dark:border-slate-700
-                    dark:bg-slate-900
-                    dark:text-white
-                    dark:hover:bg-slate-800
+                    dark:bg-slate-800
                   "
                 >
-                  💡 {item}
-                </motion.div>
 
-              ))}
+                  <div
+                    className="
+                      mb-2
+                      flex
+                      items-center
+                      gap-2
+                      text-xs
+                      font-bold
+                      text-slate-600
+                      dark:text-slate-300
+                    "
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    Resume AI
+                  </div>
 
-            </div>
+                  <div className="flex gap-1.5">
+
+                    <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-500" />
+
+                    <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-500 [animation-delay:150ms]" />
+
+                    <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-500 [animation-delay:300ms]" />
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            )}
+
+            <div ref={bottomRef} />
 
           </div>
 
         )}
-
-        {messages.map((msg, index) => (
-
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`mb-5 flex ${
-              msg.role === "user"
-                ? "justify-end"
-                : "justify-start"
-            }`}
-          >
-
-            <div
-              className={`max-w-[92%] sm:max-w-[75%] rounded-2xl px-5 py-4 whitespace-pre-wrap shadow ${
-                msg.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white dark:bg-slate-800 dark:text-white"
-              }`}
-            >
-
-              <div className="mb-2 font-semibold">
-
-                {msg.role === "user"
-                  ? "👤 You"
-                  : "🤖 Gemini AI"}
-
-              </div>
-
-              {msg.text}
-
-            </div>
-
-          </motion.div>
-
-        ))}
-                {/* ===========================
-              Loading
-        =========================== */}
-
-        {loading && (
-
-          <div className="mb-5 flex justify-start">
-
-            <div className="rounded-2xl bg-white dark:bg-slate-800 dark:text-white px-5 py-4 shadow">
-
-              <div className="mb-2 font-semibold">
-                🤖 Gemini AI
-              </div>
-
-              <div className="flex gap-2">
-
-                <span className="h-3 w-3 animate-bounce rounded-full bg-purple-500"></span>
-
-                <span className="h-3 w-3 animate-bounce rounded-full bg-purple-500 [animation-delay:150ms]"></span>
-
-                <span className="h-3 w-3 animate-bounce rounded-full bg-purple-500 [animation-delay:300ms]"></span>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        )}
-
-        <div ref={bottomRef} />
 
       </div>
 
-      {/* ===========================
-              Footer
-      =========================== */}
+      {/* =====================================================
+          INPUT FOOTER
+      ===================================================== */}
 
-      <div className="border-t border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+      <div
+        className="
+          shrink-0
+          border-t
+          border-slate-200
+          bg-white
+          px-4
+          py-3
+          sm:px-6
+          dark:border-slate-800
+          dark:bg-slate-900
+        "
+      >
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="mx-auto w-full max-w-4xl">
 
-          <input
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !loading) {
-                askAI();
-              }
-            }}
-            placeholder="Ask anything about your resume..."
-            className="
-              flex-1
-              rounded-2xl
-              border
-              border-slate-300
-              bg-white
-              px-5
-              py-4
-              text-slate-900
-              outline-none
-              transition
-              focus:ring-2
-              focus:ring-purple-500
-              dark:border-slate-700
-              dark:bg-slate-800
-              dark:text-white
-              dark:placeholder:text-slate-400
-            "
-          />
+          <div className="flex items-center gap-2">
 
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={askAI}
-            disabled={loading}
-            className="
-              rounded-2xl
-              bg-gradient-to-r
-              from-purple-600
-              to-indigo-600
-              px-8
-              py-4
-              font-semibold
-              text-white
-              transition
-              hover:from-purple-700
-              hover:to-indigo-700
-              disabled:cursor-not-allowed
-              disabled:opacity-60
-            "
-          >
-            {loading ? (
-              <div className="mx-auto h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            ) : (
-              "Send"
-            )}
-          </motion.button>
+            <input
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !loading) {
+                  askAI();
+                }
+              }}
+              placeholder="Ask anything about your resume..."
+              className="
+                min-w-0
+                flex-1
+                rounded-xl
+                border
+                border-slate-300
+                bg-slate-50
+                px-4
+                py-3
+                text-sm
+                text-slate-900
+                outline-none
+                transition
+                focus:border-blue-500
+                focus:ring-2
+                focus:ring-blue-500/20
+                dark:border-slate-700
+                dark:bg-slate-800
+                dark:text-white
+                dark:placeholder:text-slate-400
+              "
+            />
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={askAI}
+              disabled={loading}
+              className="
+                flex
+                h-11
+                min-w-[82px]
+                items-center
+                justify-center
+                rounded-xl
+                bg-gradient-to-r
+                from-blue-600
+                to-indigo-600
+                px-5
+                text-sm
+                font-bold
+                text-white
+                shadow-md
+                transition-all
+                hover:from-blue-700
+                hover:to-indigo-700
+                disabled:cursor-not-allowed
+                disabled:opacity-60
+              "
+            >
+
+              {loading ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                "Send"
+              )}
+
+            </motion.button>
+
+          </div>
+
+          <div className="mt-2 flex items-center justify-between">
+
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">
+              Powered by your uploaded resume + Gemini AI
+            </p>
+
+            <span className="hidden text-[11px] text-slate-400 sm:block">
+              Press Enter to send
+            </span>
+
+          </div>
 
         </div>
-
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-          AI responses are generated using your uploaded resume and Gemini AI.
-        </p>
 
       </div>
 
@@ -339,4 +591,3 @@ function ResumeChat({ resumeText }) {
 }
 
 export default ResumeChat;
-        

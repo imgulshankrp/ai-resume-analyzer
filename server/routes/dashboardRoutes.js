@@ -5,9 +5,16 @@ const protect = require("../middleware/authMiddleware");
 
 const {
   getLatestAnalysis,
+  getActivities,
 } = require("../controllers/dashboardController");
 
-// Get latest analysis of logged-in user
+
+// Latest resume analysis
 router.get("/latest", protect, getLatestAnalysis);
+
+
+// Recent dashboard activities
+router.get("/activities", protect, getActivities);
+
 
 module.exports = router;

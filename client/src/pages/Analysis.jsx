@@ -1,5 +1,5 @@
-import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import jsPDF from "jspdf";
@@ -20,33 +20,61 @@ import AnalyticsChart from "../components/dashboard/AnalyticsChart";
 import JDMatcher from "../components/jdmatcher/JDMatcher";
 import JobMatchCard from "../components/jdmatcher/JobMatchCard";
 
-import ResumeChat from "../components/chat/ResumeChat";
-
 import { API_URL } from "../config";
-
 import { getResumeById } from "../services/resumeService";
 
 function Analysis() {
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
-
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-
   const { id } = useParams();
-
-  const [analysis, setAnalysis] = useState(null);
-
-  const [loading, setLoading] = useState(true);
-  const file = null;
 
   const [searchParams] = useSearchParams();
 
   const tab = searchParams.get("tab");
 
-  const [aiResult, setAiResult] = useState("");
+  const token = localStorage.getItem("token");
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const [analysis, setAnalysis] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+
   const [loadingAI, setLoadingAI] = useState(false);
+
+  const [aiResult, setAiResult] = useState("");
+
+  const score = analysis?.analysis?.score ?? analysis?.score ?? 0;
+
+  const jobMatch =
+    analysis?.analysis?.jobMatch ??
+    analysis?.jobMatch ??
+    analysis?.jdMatch ??
+    0;
+
+  const skills =
+    analysis?.analysis?.skills ??
+    analysis?.skills ??
+    analysis?.foundSkills ??
+    [];
+
+  const missingSkills =
+    analysis?.analysis?.missingSkills ?? analysis?.missingSkills ?? [];
+
+  const suggestions =
+    analysis?.analysis?.suggestions ?? analysis?.suggestions ?? [];
+
+  const summary =
+    analysis?.analysis?.summary ?? analysis?.summary ?? "No summary available.";
+
+  const skillStrength = Math.min(skills.length * 8, 100);
+
   const loadResume = async () => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -56,7 +84,11 @@ function Analysis() {
     } catch (err) {
       console.error(err);
 
-      toast.error("Unable to load resume.");
+      if (err?.response?.status === 404) {
+        setAnalysis(null);
+      } else {
+        toast.error(err?.response?.data?.message || "Unable to load resume.");
+      }
     } finally {
       setLoading(false);
     }
@@ -70,7 +102,6 @@ function Analysis() {
     if (!loading && analysis) {
       window.scrollTo({
         top: 0,
-        left: 0,
         behavior: "smooth",
       });
     }
@@ -79,8 +110,34 @@ function Analysis() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="flex items-center justify-center min-h-[70vh]">
-          <h2 className="text-3xl font-bold">Loading Resume...</h2>
+        <div className="flex min-h-[75vh] items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center"
+          >
+            <div
+              className="
+                mx-auto
+                mb-6
+                h-16
+                w-16
+                animate-spin
+                rounded-full
+                border-4
+                border-blue-600
+                border-t-transparent
+              "
+            />
+
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+              Loading Resume...
+            </h2>
+
+            <p className="mt-3 text-slate-500 dark:text-slate-400">
+              Preparing your resume analysis...
+            </p>
+          </motion.div>
         </div>
       </MainLayout>
     );
@@ -89,65 +146,98 @@ function Analysis() {
   if (!analysis) {
     return (
       <MainLayout>
-        <div className="flex min-h-[70vh] items-center justify-center px-4">
+        <div className="flex min-h-[75vh] items-center justify-center px-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl dark:border-slate-700 dark:bg-slate-900"
+            initial={{
+              opacity: 0,
+              y: 25,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            className="
+              w-full
+              max-w-xl
+              rounded-3xl
+              border
+              border-slate-200
+              bg-white
+              p-10
+              text-center
+              shadow-xl
+              dark:border-slate-700
+              dark:bg-slate-900
+            "
           >
-            <h2 className="mb-3 text-2xl font-bold text-slate-900 dark:text-white">
-              No Resume Analysis Found
-            </h2>
+            <div className="mb-6 text-7xl">📄</div>
 
-            <p className="mb-6 text-slate-500 dark:text-slate-400">
-              You haven't analyzed any resume in this session. Please upload a
-              resume to start the analysis.
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              No Resume Found
+            </h1>
+
+            <p className="mt-4 text-slate-500 dark:text-slate-400">
+              Upload your resume to unlock ATS Score, AI Analysis, Resume Chat,
+              JD Matcher, Missing Skills, Suggestions and Analytics.
             </p>
 
-            <button
-              onClick={() => navigate("/upload")}
-              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
-            >
-              Upload Resume
-            </button>
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <button
+                onClick={() => navigate("/upload")}
+                className="
+                  rounded-xl
+                  bg-blue-600
+                  px-6
+                  py-3
+                  font-semibold
+                  text-white
+                  hover:bg-blue-700
+                "
+              >
+                Upload Resume
+              </button>
+
+              <button
+                onClick={() => navigate("/history")}
+                className="
+                  rounded-xl
+                  border
+                  border-slate-300
+                  px-6
+                  py-3
+                  font-semibold
+                  dark:border-slate-700
+                "
+              >
+                View History
+              </button>
+            </div>
           </motion.div>
         </div>
       </MainLayout>
     );
   }
-
-  const score = analysis.analysis?.score || analysis.score || 0;
-  const jobMatch =
-    analysis.analysis?.jobMatch ?? analysis.jobMatch ?? analysis.jdMatch ?? 0;
-
-  const skills =
-    analysis.analysis?.skills || analysis.skills || analysis.foundSkills || [];
-
-  const missingSkills =
-    analysis.analysis?.missingSkills || analysis.missingSkills || [];
-
-  const suggestions =
-    analysis.analysis?.suggestions || analysis.suggestions || [];
-
-  const summary =
-    analysis.analysis?.summary || analysis.summary || "No summary available.";
-
-  const skillStrength = Math.min(skills.length * 8, 100);
-  /* ===============================
-        AI Resume Analysis
-  =============================== */
+  /* ==========================================
+          AI Resume Analysis
+  ========================================== */
 
   const handleAIAnalysis = async () => {
+    if (!analysis) {
+      toast.warning("Please upload a resume first.");
+      navigate("/upload");
+      return;
+    }
+
+    const resumeText =
+      analysis?.extractedText || analysis?.resumeText || analysis?.text || "";
+
+    if (!resumeText.trim()) {
+      toast.warning("Resume text not found. Please upload the resume again.");
+      return;
+    }
+
     try {
       setLoadingAI(true);
-
-      const resumeText =
-        analysis?.extractedText || analysis?.resumeText || analysis?.text || "";
-
-      if (!resumeText) {
-        toast.warning("Resume text not found. Please upload the resume again.");
-        return;
-      }
 
       const response = await axios.post(
         `${API_URL}/ai/analyze`,
@@ -162,24 +252,57 @@ function Analysis() {
         },
       );
 
-      setAiResult(response.data.result);
+      if (response?.data?.result) {
+        setAiResult(response.data.result);
 
-      toast.success("AI Analysis Completed!");
+        toast.success("AI Analysis Completed!");
+      } else {
+        toast.warning("No AI response received.");
+      }
     } catch (error) {
       console.error(error);
 
-      toast.error(error.response?.data?.message || "Unable to analyze resume.");
+      const status = error?.response?.status;
+
+      switch (status) {
+        case 400:
+          toast.warning("Invalid resume data.");
+          break;
+
+        case 401:
+          toast.error("Session expired. Please login again.");
+          navigate("/login");
+          break;
+
+        case 404:
+          toast.warning("Resume not found.");
+          navigate("/upload");
+          break;
+
+        case 429:
+          toast.warning("Too many requests.");
+          break;
+
+        case 500:
+          toast.error("AI server unavailable.");
+          break;
+
+        default:
+          toast.error(
+            error?.response?.data?.message || "Unable to analyze resume.",
+          );
+      }
     } finally {
       setLoadingAI(false);
     }
   };
 
-  /* ===============================
-        PDF Helper
-  =============================== */
+  /* ==========================================
+          PDF Helper
+  ========================================== */
 
   const checkPage = (doc, y) => {
-    if (y > 270) {
+    if (y >= 270) {
       doc.addPage();
       return 20;
     }
@@ -187,39 +310,39 @@ function Analysis() {
     return y;
   };
 
-  /* ===============================
-        Download Report
-  =============================== */
+  /* ==========================================
+          Download Report
+  ========================================== */
 
   const downloadReport = () => {
-    const doc = new jsPDF();
-
-    let ai = null;
-
-    try {
-      ai = aiResult ? JSON.parse(aiResult) : null;
-    } catch {
-      ai = null;
+    if (!analysis) {
+      toast.warning("No analysis available.");
+      return;
     }
+
+    const doc = new jsPDF();
 
     let y = 20;
 
-    // Header
     doc.setFillColor(37, 99, 235);
+
     doc.rect(0, 0, 210, 35, "F");
 
     doc.setTextColor(255, 255, 255);
+
     doc.setFontSize(22);
+
     doc.text("AI Resume Analysis Report", 20, 22);
 
     doc.setFontSize(11);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 30);
+
+    doc.text(`Generated : ${new Date().toLocaleString()}`, 20, 30);
 
     doc.setTextColor(0, 0, 0);
 
     y = 50;
 
-    doc.setFontSize(15);
+    doc.setFontSize(16);
 
     doc.text(`Candidate : ${user?.name || "User"}`, 20, y);
 
@@ -235,7 +358,22 @@ function Analysis() {
 
     y = checkPage(doc, y);
 
-    doc.setFontSize(16);
+    doc.setTextColor(37, 99, 235);
+
+    doc.text("Summary", 20, y);
+
+    y += 10;
+
+    doc.setTextColor(0, 0, 0);
+
+    const summaryLines = doc.splitTextToSize(summary, 170);
+
+    doc.text(summaryLines, 20, y);
+
+    y += summaryLines.length * 7 + 12;
+
+    y = checkPage(doc, y);
+
     doc.setTextColor(37, 99, 235);
 
     doc.text("Skills Found", 20, y);
@@ -243,7 +381,7 @@ function Analysis() {
     y += 10;
 
     doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
+
     const skillLines = doc.splitTextToSize(
       skills.length ? skills.join(", ") : "No skills detected.",
       170,
@@ -251,23 +389,17 @@ function Analysis() {
 
     doc.text(skillLines, 20, y);
 
-    y += skillLines.length * 7 + 10;
+    y += skillLines.length * 7 + 12;
 
     y = checkPage(doc, y);
 
-    /* ===============================
-          Missing Skills
-    =============================== */
-
     doc.setTextColor(220, 38, 38);
-    doc.setFontSize(16);
 
     doc.text("Missing Skills", 20, y);
 
     y += 10;
 
     doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
 
     const missingLines = doc.splitTextToSize(
       missingSkills.length ? missingSkills.join(", ") : "No missing skills.",
@@ -276,70 +408,56 @@ function Analysis() {
 
     doc.text(missingLines, 20, y);
 
-    y += missingLines.length * 7 + 10;
+    y += missingLines.length * 7 + 12;
 
     y = checkPage(doc, y);
 
-    /* ===============================
-          Suggestions
-    =============================== */
-
     doc.setTextColor(16, 185, 129);
-    doc.setFontSize(16);
 
     doc.text("Suggestions", 20, y);
 
     y += 10;
 
     doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
 
     if (!suggestions.length) {
-      doc.text("No suggestions.", 20, y);
-      y += 10;
+      doc.text("No suggestions available.", 20, y);
     } else {
       suggestions.forEach((item) => {
         y = checkPage(doc, y);
 
-        const lines = doc.splitTextToSize(item, 165);
+        const lines = doc.splitTextToSize("• " + item, 170);
 
-        doc.text("• " + lines[0], 20, y);
+        doc.text(lines, 20, y);
 
-        for (let i = 1; i < lines.length; i++) {
-          y += 7;
-          doc.text(lines[i], 25, y);
-        }
-
-        y += 10;
+        y += lines.length * 7 + 6;
       });
     }
 
-    /* ===============================
-          AI Analysis (if available)
-    =============================== */
-
-    if (ai) {
+    if (aiResult) {
       y = checkPage(doc, y);
 
       doc.setTextColor(99, 102, 241);
-      doc.setFontSize(16);
 
-      doc.text("AI Analysis", 20, y);
+      doc.text("AI Insights", 20, y);
 
       y += 10;
 
       doc.setTextColor(0, 0, 0);
-      doc.setFontSize(11);
 
-      const aiText = doc.splitTextToSize(
-        typeof ai === "string" ? ai : JSON.stringify(ai, null, 2),
+      const aiLines = doc.splitTextToSize(
+        typeof aiResult === "string"
+          ? aiResult
+          : JSON.stringify(aiResult, null, 2),
         170,
       );
 
-      doc.text(aiText, 20, y);
+      doc.text(aiLines, 20, y);
     }
 
     doc.save("Resume-Analysis-Report.pdf");
+
+    toast.success("Report downloaded successfully.");
   };
   return (
     <MainLayout>
@@ -360,7 +478,7 @@ function Analysis() {
                 <motion.h1
                   initial={{ opacity: 0, x: -25 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4 }}
+                  transition={{ duration: 0.45 }}
                   className="text-4xl font-bold text-white"
                 >
                   Resume Analysis
@@ -411,6 +529,7 @@ function Analysis() {
                 >
                   📄 Download Report
                 </button>
+
                 <button
                   onClick={() => navigate(-1)}
                   className="
@@ -476,9 +595,10 @@ function Analysis() {
             </div>
           </div>
         </div>
-        {/* =========================================
-                Score + Resume Preview
-        ========================================= */}
+
+        {/* ===============================
+                Score + Preview
+        =============================== */}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <motion.div
@@ -524,7 +644,6 @@ function Analysis() {
             />
           </motion.div>
         </div>
-
         {/* =========================================
                 Summary + Job Match
         ========================================= */}
@@ -597,6 +716,7 @@ function Analysis() {
             suggestions={suggestions}
           />
         </motion.div>
+
         {/* =========================================
                 Resume Strength
         ========================================= */}
@@ -622,7 +742,7 @@ function Analysis() {
           </h2>
 
           <div className="space-y-8">
-            {/* Skill Strength */}
+            {/* Skills Strength */}
 
             <div>
               <div className="mb-2 flex justify-between">
@@ -635,12 +755,22 @@ function Analysis() {
                 </span>
               </div>
 
-              <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${skillStrength}%` }}
-                  transition={{ duration: 1 }}
-                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                  animate={{
+                    width: `${skillStrength}%`,
+                  }}
+                  transition={{
+                    duration: 1,
+                  }}
+                  className="
+                    h-full
+                    rounded-full
+                    bg-gradient-to-r
+                    from-blue-500
+                    to-indigo-600
+                  "
                 />
               </div>
             </div>
@@ -656,18 +786,27 @@ function Analysis() {
                 <span className="font-bold text-emerald-600">{score}%</span>
               </div>
 
-              <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${score}%` }}
-                  transition={{ duration: 1 }}
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-600"
+                  animate={{
+                    width: `${score}%`,
+                  }}
+                  transition={{
+                    duration: 1,
+                  }}
+                  className="
+                    h-full
+                    rounded-full
+                    bg-gradient-to-r
+                    from-emerald-500
+                    to-green-600
+                  "
                 />
               </div>
             </div>
           </div>
         </motion.div>
-
         {/* =========================================
                 Skills
         ========================================= */}
@@ -736,6 +875,7 @@ function Analysis() {
         >
           <SuggestionsCard suggestions={suggestions} />
         </motion.div>
+
         {/* =========================================
                 AI Analysis
         ========================================= */}
@@ -743,9 +883,14 @@ function Analysis() {
         {aiResult && (
           <motion.div
             initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
             viewport={{ once: true }}
-            transition={{ duration: 0.45 }}
+            transition={{
+              duration: 0.45,
+            }}
             className="
               rounded-3xl
               border
@@ -760,7 +905,6 @@ function Analysis() {
             <AIAnalysisCard data={aiResult} />
           </motion.div>
         )}
-
         {/* =========================================
                 JD Matcher
         ========================================= */}
@@ -793,37 +937,6 @@ function Analysis() {
         )}
 
         {/* =========================================
-                Resume Chat (Tab)
-        ========================================= */}
-
-        {tab === "chat" && (
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="
-              rounded-3xl
-              border
-              border-slate-200
-              bg-white
-              p-6
-              shadow-lg
-              dark:border-slate-800
-              dark:bg-slate-900
-            "
-          >
-            <ResumeChat
-              resumeText={
-                analysis?.extractedText ||
-                analysis?.resumeText ||
-                analysis?.text ||
-                ""
-              }
-            />
-          </motion.div>
-        )}
-
-        {/* =========================================
                 Resume Chat
         ========================================= */}
 
@@ -843,14 +956,7 @@ function Analysis() {
             dark:bg-slate-900
           "
         >
-          <ResumeChat
-            resumeText={
-              analysis?.extractedText ||
-              analysis?.resumeText ||
-              analysis?.text ||
-              ""
-            }
-          />
+          
         </motion.div>
       </motion.div>
     </MainLayout>

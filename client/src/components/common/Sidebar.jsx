@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
+
 import {
   LayoutDashboard,
   Upload,
@@ -10,155 +13,614 @@ import {
   User,
   Settings,
   LogOut,
+  FileText,
+  ChevronDown,
+  ChevronRight,
+  Loader2,
 } from "lucide-react";
 
-const menuItems = [
-  {
-    name: "Dashboard",
-    path: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Upload Resume",
-    path: "/upload",
-    icon: Upload,
-  },
-  {
-    name: "AI Analysis",
-    path: "/analysis",
-    icon: Brain,
-  },
-  {
-    name: "Resume Chat",
-    path: "/chat",
-    icon: MessageSquare,
-  },
-  {
-    name: "JD Matcher",
-    path: "/jd-matcher",
-    icon: Briefcase,
-  },
-  {
-    name: "Compare Resume",
-    path: "/compare",
-    icon: GitCompare,
-  },
-  {
-    name: "History",
-    path: "/history",
-    icon: History,
-  },
-];
+import { API_URL } from "../../config";
 
-const bottomItems = [
-  {
-    name: "Profile",
-    path: "/profile",
-    icon: User,
-  },
-  {
-    name: "Settings",
-    path: "/settings",
-    icon: Settings,
-  },
-];
+/* ==========================================
+        Sidebar Component
+========================================== */
 
 export default function Sidebar() {
   const navigate = useNavigate();
+
+  const [resumeLoading, setResumeLoading] =
+    useState(false);
+
+  const [resumeOpen, setResumeOpen] =
+    useState(true);
+
+  /* ==========================================
+        Get Latest Resume
+  ========================================== */
+
+  const getLatestResume = async () => {
+    try {
+      setResumeLoading(true);
+
+      const token =
+        localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/login");
+        return null;
+      }
+
+      const response = await axios.get(
+        `${API_URL}/history`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const resumes =
+        response?.data?.resumes || [];
+
+      if (!resumes.length) {
+        return null;
+      }
+
+      /*
+        History already sorts/handles resumes.
+        We use the first resume as the
+        current/latest resume.
+      */
+      return resumes[0];
+    } catch (error) {
+      console.error(
+        "Unable to get latest resume:",
+        error
+      );
+
+      if (
+        error?.response?.status === 401
+      ) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        navigate("/login", {
+          replace: true,
+        });
+
+        return null;
+      }
+
+      return null;
+    } finally {
+      setResumeLoading(false);
+    }
+  };
+
+  /* ==========================================
+        AI Analysis Navigation
+  ========================================== */
+
+  const handleAIAnalysis = async () => {
+    const resume =
+      await getLatestResume();
+
+    if (!resume?._id) {
+      navigate("/upload");
+      return;
+    }
+
+    navigate(
+      `/analysis/${resume._id}`,
+      {
+        state: {
+          resume,
+        },
+      }
+    );
+  };
+
+  /* ==========================================
+        Resume Chat Navigation
+  ========================================== */
+
+  const handleResumeChat = async () => {
+    const resume =
+      await getLatestResume();
+
+    if (!resume?._id) {
+      navigate("/upload");
+      return;
+    }
+
+    navigate(
+      `/chat/${resume._id}`,
+      {
+        state: {
+          resume,
+        },
+      }
+    );
+  };
+
+  /* ==========================================
+        Normal Navigation
+  ========================================== */
+
+  const handleNavigation =
+    (path) => {
+      navigate(path);
+    };
+
+  /* ==========================================
+        Logout
+  ========================================== */
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
-    navigate("/login", { replace: true });
+    navigate("/login", {
+      replace: true,
+    });
   };
 
+  /* ==========================================
+        NavLink Style
+  ========================================== */
+
+  const navClass = ({
+    isActive,
+  }) =>
+    `
+      group
+      flex
+      w-full
+      items-center
+      gap-3
+      rounded-xl
+      px-4
+      py-3
+      text-sm
+      font-medium
+      transition-all
+      duration-200
+      ${
+        isActive
+          ? `
+            bg-blue-600
+            text-white
+            shadow-md
+            shadow-blue-600/20
+          `
+          : `
+            text-slate-700
+            hover:bg-slate-100
+            hover:text-blue-600
+            dark:text-slate-300
+            dark:hover:bg-slate-800
+            dark:hover:text-blue-400
+          `
+      }
+    `;
+
   return (
-    <aside className="flex min-h-screen w-72 flex-col justify-between border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <aside
+      className="
+        flex
+        h-full
+        min-h-screen
+        w-full
+        flex-col
+        border-r
+        border-slate-200
+        bg-white
+        dark:border-slate-800
+        dark:bg-slate-950
+      "
+    >
+      {/* ==========================================
+              Logo
+      ========================================== */}
 
-      {/* Top */}
+      <div
+        className="
+          flex
+          h-20
+          shrink-0
+          items-center
+          gap-3
+          border-b
+          border-slate-200
+          px-6
+          dark:border-slate-800
+        "
+      >
+        <div
+          className="
+            flex
+            h-10
+            w-10
+            items-center
+            justify-center
+            rounded-xl
+            bg-gradient-to-br
+            from-blue-600
+            to-indigo-600
+            text-white
+            shadow-lg
+          "
+        >
+          <FileText
+            size={22}
+          />
+        </div>
 
-      <div>
-
-        {/* Logo */}
-
-        <div className="flex h-20 items-center justify-center border-b border-slate-200 dark:border-slate-800">
-
-          <h1 className="text-2xl font-bold text-blue-600">
+        <div>
+          <h1
+            className="
+              text-xl
+              font-bold
+              tracking-tight
+              text-slate-900
+              dark:text-white
+            "
+          >
             ResumeAI
           </h1>
 
+          <p
+            className="
+              text-[11px]
+              font-medium
+              text-slate-500
+              dark:text-slate-400
+            "
+          >
+            Resume Intelligence
+          </p>
+        </div>
+      </div>
+
+      {/* ==========================================
+              Navigation
+      ========================================== */}
+
+      <div
+        className="
+          flex-1
+          overflow-y-auto
+          px-3
+          py-5
+        "
+      >
+        {/* ================= Dashboard ================= */}
+
+        <div className="mb-6">
+          <NavLink
+            to="/dashboard"
+            className={navClass}
+          >
+            <LayoutDashboard
+              size={20}
+            />
+
+            <span>
+              Dashboard
+            </span>
+          </NavLink>
         </div>
 
-        {/* Navigation */}
+        {/* ================= Resume ================= */}
 
-        <nav className="space-y-2 p-4">
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() =>
+              setResumeOpen(
+                (prev) => !prev
+              )
+            }
+            className="
+              mb-2
+              flex
+              w-full
+              items-center
+              justify-between
+              px-4
+              text-xs
+              font-bold
+              uppercase
+              tracking-wider
+              text-slate-400
+              transition
+              hover:text-slate-600
+              dark:hover:text-slate-200
+            "
+          >
+            <span>
+              Resume
+            </span>
 
-          {menuItems.map((item) => {
-            const Icon = item.icon;
+            {resumeOpen ? (
+              <ChevronDown
+                size={16}
+              />
+            ) : (
+              <ChevronRight
+                size={16}
+              />
+            )}
+          </button>
 
-            return (
+          {resumeOpen && (
+            <div className="space-y-1">
+              {/* Upload Resume */}
+
               <NavLink
-                key={item.name}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 ${
-                    isActive
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                  }`
-                }
+                to="/upload"
+                className={navClass}
               >
-                <Icon size={20} />
+                <Upload
+                  size={19}
+                />
 
-                <span>{item.name}</span>
+                <span>
+                  Upload Resume
+                </span>
               </NavLink>
-            );
-          })}
 
-        </nav>
+              {/* AI Analysis */}
 
-      </div>
+              <button
+                type="button"
+                onClick={
+                  handleAIAnalysis
+                }
+                disabled={
+                  resumeLoading
+                }
+                className="
+                  group
+                  flex
+                  w-full
+                  items-center
+                  gap-3
+                  rounded-xl
+                  px-4
+                  py-3
+                  text-left
+                  text-sm
+                  font-medium
+                  text-slate-700
+                  transition-all
+                  duration-200
+                  hover:bg-slate-100
+                  hover:text-blue-600
+                  disabled:cursor-wait
+                  disabled:opacity-60
+                  dark:text-slate-300
+                  dark:hover:bg-slate-800
+                  dark:hover:text-blue-400
+                "
+              >
+                {resumeLoading ? (
+                  <Loader2
+                    size={19}
+                    className="animate-spin"
+                  />
+                ) : (
+                  <Brain
+                    size={19}
+                  />
+                )}
 
-      {/* Bottom */}
+                <span>
+                  {resumeLoading
+                    ? "Loading..."
+                    : "AI Analysis"}
+                </span>
+              </button>
 
-      <div className="space-y-2 border-t border-slate-200 p-4 dark:border-slate-800">
+              {/* Resume Chat */}
 
-        {bottomItems.map((item) => {
-          const Icon = item.icon;
+              <button
+                type="button"
+                onClick={
+                  handleResumeChat
+                }
+                disabled={
+                  resumeLoading
+                }
+                className="
+                  group
+                  flex
+                  w-full
+                  items-center
+                  gap-3
+                  rounded-xl
+                  px-4
+                  py-3
+                  text-left
+                  text-sm
+                  font-medium
+                  text-slate-700
+                  transition-all
+                  duration-200
+                  hover:bg-slate-100
+                  hover:text-blue-600
+                  disabled:cursor-wait
+                  disabled:opacity-60
+                  dark:text-slate-300
+                  dark:hover:bg-slate-800
+                  dark:hover:text-blue-400
+                "
+              >
+                <MessageSquare
+                  size={19}
+                />
 
-          return (
+                <span>
+                  Resume Chat
+                </span>
+              </button>
+
+              {/* Compare Resume */}
+
+              <NavLink
+                to="/compare"
+                className={navClass}
+              >
+                <GitCompare
+                  size={19}
+                />
+
+                <span>
+                  Compare Resume
+                </span>
+              </NavLink>
+
+              {/* History */}
+
+              <NavLink
+                to="/history"
+                className={navClass}
+              >
+                <History
+                  size={19}
+                />
+
+                <span>
+                  History
+                </span>
+              </NavLink>
+            </div>
+          )}
+        </div>
+
+        {/* ================= Career ================= */}
+
+        <div className="mb-6">
+          <div
+            className="
+              mb-2
+              px-4
+              text-xs
+              font-bold
+              uppercase
+              tracking-wider
+              text-slate-400
+            "
+          >
+            Career
+          </div>
+
+          <NavLink
+            to="/jd-matcher"
+            className={navClass}
+          >
+            <Briefcase
+              size={20}
+            />
+
+            <span>
+              JD Matcher
+            </span>
+          </NavLink>
+        </div>
+
+        {/* ================= Account ================= */}
+
+        <div>
+          <div
+            className="
+              mb-2
+              px-4
+              text-xs
+              font-bold
+              uppercase
+              tracking-wider
+              text-slate-400
+            "
+          >
+            Account
+          </div>
+
+          <div className="space-y-1">
             <NavLink
-              key={item.name}
-              to={item.path}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 ${
-                  isActive
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                }`
-              }
+              to="/profile"
+              className={navClass}
             >
-              <Icon size={20} />
+              <User
+                size={20}
+              />
 
-              <span>{item.name}</span>
+              <span>
+                Profile
+              </span>
             </NavLink>
-          );
-        })}
 
-        {/* Logout */}
+            <NavLink
+              to="/settings"
+              className={navClass}
+            >
+              <Settings
+                size={20}
+              />
 
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-600 transition-all duration-300 hover:bg-red-50 dark:hover:bg-red-900/20"
-        >
-          <LogOut size={20} />
-
-          <span>Logout</span>
-        </button>
-
+              <span>
+                Settings
+              </span>
+            </NavLink>
+          </div>
+        </div>
       </div>
 
+      {/* ==========================================
+              Logout
+      ========================================== */}
+
+      <div
+        className="
+          shrink-0
+          border-t
+          border-slate-200
+          p-3
+          dark:border-slate-800
+        "
+      >
+        <button
+          type="button"
+          onClick={
+            handleLogout
+          }
+          className="
+            flex
+            w-full
+            items-center
+            gap-3
+            rounded-xl
+            px-4
+            py-3
+            text-sm
+            font-medium
+            text-red-600
+            transition-all
+            duration-200
+            hover:bg-red-50
+            dark:text-red-400
+            dark:hover:bg-red-950/30
+          "
+        >
+          <LogOut
+            size={20}
+          />
+
+          <span>
+            Logout
+          </span>
+        </button>
+      </div>
     </aside>
   );
 }
