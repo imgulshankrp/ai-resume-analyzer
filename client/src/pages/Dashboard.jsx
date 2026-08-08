@@ -57,8 +57,9 @@ export default function Dashboard() {
             xl:grid-cols-2
           "
         >
+          {/* Recent Resume */}
           <motion.div
-            className="h-full min-w-0"
+            className="flex min-w-0 h-full"
             initial={{ opacity: 0, x: -25 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
@@ -66,11 +67,14 @@ export default function Dashboard() {
               delay: 0.2,
             }}
           >
-            <RecentResume />
+            <div className="w-full h-full">
+              <RecentResume />
+            </div>
           </motion.div>
 
+          {/* Quick Actions */}
           <motion.div
-            className="h-full min-w-0"
+            className="flex min-w-0 h-full"
             initial={{ opacity: 0, x: 25 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
@@ -78,7 +82,9 @@ export default function Dashboard() {
               delay: 0.3,
             }}
           >
-            <QuickActions />
+            <div className="w-full h-full">
+              <QuickActions />
+            </div>
           </motion.div>
         </div>
 
@@ -95,9 +101,12 @@ export default function Dashboard() {
             xl:grid-cols-3
           "
         >
+          {/* Recent Activity */}
           <motion.div
             className="
+              flex
               min-w-0
+              h-full
               xl:col-span-2
             "
             initial={{ opacity: 0, x: -25 }}
@@ -107,11 +116,14 @@ export default function Dashboard() {
               delay: 0.35,
             }}
           >
-            <ActivityTimeline />
+            <div className="w-full h-full">
+              <ActivityTimeline />
+            </div>
           </motion.div>
 
+          {/* User Card */}
           <motion.div
-            className="min-w-0"
+            className="flex min-w-0 h-full"
             initial={{ opacity: 0, x: 25 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
@@ -119,7 +131,9 @@ export default function Dashboard() {
               delay: 0.4,
             }}
           >
-            <UserCard />
+            <div className="w-full h-full">
+              <UserCard />
+            </div>
           </motion.div>
         </div>
 

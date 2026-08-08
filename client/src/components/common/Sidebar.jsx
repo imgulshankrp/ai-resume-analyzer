@@ -17,72 +17,66 @@ import {
   ChevronDown,
   ChevronRight,
   Loader2,
+  X,
 } from "lucide-react";
 
 import { API_URL } from "../../config";
 
-/* ==========================================
-        Sidebar Component
-========================================== */
-
-export default function Sidebar() {
+export default function Sidebar({ onClose }) {
   const navigate = useNavigate();
 
-  const [resumeLoading, setResumeLoading] =
-    useState(false);
+  const [resumeLoading, setResumeLoading] = useState(false);
+  const [resumeOpen, setResumeOpen] = useState(true);
 
-  const [resumeOpen, setResumeOpen] =
-    useState(true);
+  /* =====================================================
+     CLOSE SIDEBAR
+  ===================================================== */
 
-  /* ==========================================
-        Get Latest Resume
-  ========================================== */
+  const closeSidebar = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+
+
+  /* =====================================================
+     GET LATEST RESUME
+  ===================================================== */
 
   const getLatestResume = async () => {
     try {
       setResumeLoading(true);
 
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       if (!token) {
+        closeSidebar();
         navigate("/login");
         return null;
       }
 
-      const response = await axios.get(
-        `${API_URL}/history`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${API_URL}/history`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const resumes =
-        response?.data?.resumes || [];
+      const resumes = response?.data?.resumes || [];
 
       if (!resumes.length) {
         return null;
       }
 
-      /*
-        History already sorts/handles resumes.
-        We use the first resume as the
-        current/latest resume.
-      */
       return resumes[0];
-    } catch (error) {
-      console.error(
-        "Unable to get latest resume:",
-        error
-      );
 
-      if (
-        error?.response?.status === 401
-      ) {
+    } catch (error) {
+      console.error("Unable to get latest resume:", error);
+
+      if (error?.response?.status === 401) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+
+        closeSidebar();
 
         navigate("/login", {
           replace: true,
@@ -92,86 +86,90 @@ export default function Sidebar() {
       }
 
       return null;
+
     } finally {
       setResumeLoading(false);
     }
   };
 
-  /* ==========================================
-        AI Analysis Navigation
-  ========================================== */
+
+  /* =====================================================
+     AI ANALYSIS
+  ===================================================== */
 
   const handleAIAnalysis = async () => {
-    const resume =
-      await getLatestResume();
+    const resume = await getLatestResume();
 
     if (!resume?._id) {
+      closeSidebar();
       navigate("/upload");
       return;
     }
 
-    navigate(
-      `/analysis/${resume._id}`,
-      {
-        state: {
-          resume,
-        },
-      }
-    );
+    closeSidebar();
+
+    navigate(`/analysis/${resume._id}`, {
+      state: {
+        resume,
+      },
+    });
   };
 
-  /* ==========================================
-        Resume Chat Navigation
-  ========================================== */
+
+  /* =====================================================
+     RESUME CHAT
+  ===================================================== */
 
   const handleResumeChat = async () => {
-    const resume =
-      await getLatestResume();
+    const resume = await getLatestResume();
 
     if (!resume?._id) {
+      closeSidebar();
       navigate("/upload");
       return;
     }
 
-    navigate(
-      `/chat/${resume._id}`,
-      {
-        state: {
-          resume,
-        },
-      }
-    );
+    closeSidebar();
+
+    navigate(`/chat/${resume._id}`, {
+      state: {
+        resume,
+      },
+    });
   };
 
-  /* ==========================================
-        Normal Navigation
-  ========================================== */
 
-  const handleNavigation =
-    (path) => {
-      navigate(path);
-    };
+  /* =====================================================
+     NORMAL NAVIGATION
+  ===================================================== */
 
-  /* ==========================================
-        Logout
-  ========================================== */
+  const handleNavigation = (path) => {
+    closeSidebar();
+    navigate(path);
+  };
+
+
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
+    closeSidebar();
 
     navigate("/login", {
       replace: true,
     });
   };
 
-  /* ==========================================
-        NavLink Style
-  ========================================== */
 
-  const navClass = ({
-    isActive,
-  }) =>
+  /* =====================================================
+     NAV LINK STYLE
+  ===================================================== */
+
+  const navClass = ({ isActive }) =>
     `
       group
       flex
@@ -185,6 +183,7 @@ export default function Sidebar() {
       font-medium
       transition-all
       duration-200
+
       ${
         isActive
           ? `
@@ -204,24 +203,23 @@ export default function Sidebar() {
       }
     `;
 
+
   return (
-    <aside
+    <div
       className="
         flex
         h-full
         min-h-screen
         w-full
         flex-col
-        border-r
-        border-slate-200
         bg-white
-        dark:border-slate-800
         dark:bg-slate-950
       "
     >
-      {/* ==========================================
-              Logo
-      ========================================== */}
+
+      {/* =================================================
+          SIDEBAR HEADER
+      ================================================= */}
 
       <div
         className="
@@ -232,15 +230,19 @@ export default function Sidebar() {
           gap-3
           border-b
           border-slate-200
-          px-6
+          px-5
           dark:border-slate-800
         "
       >
+
+        {/* Logo */}
+
         <div
           className="
             flex
             h-10
             w-10
+            shrink-0
             items-center
             justify-center
             rounded-xl
@@ -251,12 +253,12 @@ export default function Sidebar() {
             shadow-lg
           "
         >
-          <FileText
-            size={22}
-          />
+          <FileText size={22} />
         </div>
 
-        <div>
+
+        <div className="min-w-0 flex-1">
+
           <h1
             className="
               text-xl
@@ -279,12 +281,42 @@ export default function Sidebar() {
           >
             Resume Intelligence
           </p>
+
         </div>
+
+
+        {/* Mobile close button */}
+
+        <button
+          type="button"
+          onClick={closeSidebar}
+          aria-label="Close sidebar"
+          className="
+            flex
+            h-9
+            w-9
+            shrink-0
+            items-center
+            justify-center
+            rounded-lg
+            text-slate-500
+            transition
+            hover:bg-slate-100
+            hover:text-slate-800
+            dark:text-slate-400
+            dark:hover:bg-slate-800
+            dark:hover:text-white
+          "
+        >
+          <X size={21} />
+        </button>
+
       </div>
 
-      {/* ==========================================
-              Navigation
-      ========================================== */}
+
+      {/* =================================================
+          NAVIGATION
+      ================================================= */}
 
       <div
         className="
@@ -294,32 +326,36 @@ export default function Sidebar() {
           py-5
         "
       >
-        {/* ================= Dashboard ================= */}
+
+        {/* =================================================
+            DASHBOARD
+        ================================================= */}
 
         <div className="mb-6">
+
           <NavLink
             to="/dashboard"
+            onClick={closeSidebar}
             className={navClass}
           >
-            <LayoutDashboard
-              size={20}
-            />
+            <LayoutDashboard size={20} />
 
-            <span>
-              Dashboard
-            </span>
+            <span>Dashboard</span>
           </NavLink>
+
         </div>
 
-        {/* ================= Resume ================= */}
+
+        {/* =================================================
+            RESUME
+        ================================================= */}
 
         <div className="mb-6">
+
           <button
             type="button"
             onClick={() =>
-              setResumeOpen(
-                (prev) => !prev
-              )
+              setResumeOpen((prev) => !prev)
             }
             className="
               mb-2
@@ -338,48 +374,40 @@ export default function Sidebar() {
               dark:hover:text-slate-200
             "
           >
-            <span>
-              Resume
-            </span>
+
+            <span>Resume</span>
 
             {resumeOpen ? (
-              <ChevronDown
-                size={16}
-              />
+              <ChevronDown size={16} />
             ) : (
-              <ChevronRight
-                size={16}
-              />
+              <ChevronRight size={16} />
             )}
+
           </button>
+
 
           {resumeOpen && (
             <div className="space-y-1">
+
               {/* Upload Resume */}
 
               <NavLink
                 to="/upload"
+                onClick={closeSidebar}
                 className={navClass}
               >
-                <Upload
-                  size={19}
-                />
+                <Upload size={19} />
 
-                <span>
-                  Upload Resume
-                </span>
+                <span>Upload Resume</span>
               </NavLink>
+
 
               {/* AI Analysis */}
 
               <button
                 type="button"
-                onClick={
-                  handleAIAnalysis
-                }
-                disabled={
-                  resumeLoading
-                }
+                onClick={handleAIAnalysis}
+                disabled={resumeLoading}
                 className="
                   group
                   flex
@@ -404,15 +432,14 @@ export default function Sidebar() {
                   dark:hover:text-blue-400
                 "
               >
+
                 {resumeLoading ? (
                   <Loader2
                     size={19}
                     className="animate-spin"
                   />
                 ) : (
-                  <Brain
-                    size={19}
-                  />
+                  <Brain size={19} />
                 )}
 
                 <span>
@@ -420,18 +447,16 @@ export default function Sidebar() {
                     ? "Loading..."
                     : "AI Analysis"}
                 </span>
+
               </button>
+
 
               {/* Resume Chat */}
 
               <button
                 type="button"
-                onClick={
-                  handleResumeChat
-                }
-                disabled={
-                  resumeLoading
-                }
+                onClick={handleResumeChat}
+                disabled={resumeLoading}
                 className="
                   group
                   flex
@@ -456,51 +481,51 @@ export default function Sidebar() {
                   dark:hover:text-blue-400
                 "
               >
-                <MessageSquare
-                  size={19}
-                />
 
-                <span>
-                  Resume Chat
-                </span>
+                <MessageSquare size={19} />
+
+                <span>Resume Chat</span>
+
               </button>
+
 
               {/* Compare Resume */}
 
               <NavLink
                 to="/compare"
+                onClick={closeSidebar}
                 className={navClass}
               >
-                <GitCompare
-                  size={19}
-                />
+                <GitCompare size={19} />
 
-                <span>
-                  Compare Resume
-                </span>
+                <span>Compare Resume</span>
               </NavLink>
+
 
               {/* History */}
 
               <NavLink
                 to="/history"
+                onClick={closeSidebar}
                 className={navClass}
               >
-                <History
-                  size={19}
-                />
+                <History size={19} />
 
-                <span>
-                  History
-                </span>
+                <span>History</span>
               </NavLink>
+
             </div>
           )}
+
         </div>
 
-        {/* ================= Career ================= */}
+
+        {/* =================================================
+            CAREER
+        ================================================= */}
 
         <div className="mb-6">
+
           <div
             className="
               mb-2
@@ -515,23 +540,26 @@ export default function Sidebar() {
             Career
           </div>
 
+
           <NavLink
             to="/jd-matcher"
+            onClick={closeSidebar}
             className={navClass}
           >
-            <Briefcase
-              size={20}
-            />
+            <Briefcase size={20} />
 
-            <span>
-              JD Matcher
-            </span>
+            <span>JD Matcher</span>
           </NavLink>
+
         </div>
 
-        {/* ================= Account ================= */}
+
+        {/* =================================================
+            ACCOUNT
+        ================================================= */}
 
         <div>
+
           <div
             className="
               mb-2
@@ -546,39 +574,44 @@ export default function Sidebar() {
             Account
           </div>
 
+
           <div className="space-y-1">
+
+            {/* Profile */}
+
             <NavLink
               to="/profile"
+              onClick={closeSidebar}
               className={navClass}
             >
-              <User
-                size={20}
-              />
+              <User size={20} />
 
-              <span>
-                Profile
-              </span>
+              <span>Profile</span>
             </NavLink>
+
+
+            {/* Settings */}
 
             <NavLink
               to="/settings"
+              onClick={closeSidebar}
               className={navClass}
             >
-              <Settings
-                size={20}
-              />
+              <Settings size={20} />
 
-              <span>
-                Settings
-              </span>
+              <span>Settings</span>
             </NavLink>
+
           </div>
+
         </div>
+
       </div>
 
-      {/* ==========================================
-              Logout
-      ========================================== */}
+
+      {/* =================================================
+          LOGOUT
+      ================================================= */}
 
       <div
         className="
@@ -589,11 +622,10 @@ export default function Sidebar() {
           dark:border-slate-800
         "
       >
+
         <button
           type="button"
-          onClick={
-            handleLogout
-          }
+          onClick={handleLogout}
           className="
             flex
             w-full
@@ -612,15 +644,15 @@ export default function Sidebar() {
             dark:hover:bg-red-950/30
           "
         >
-          <LogOut
-            size={20}
-          />
 
-          <span>
-            Logout
-          </span>
+          <LogOut size={20} />
+
+          <span>Logout</span>
+
         </button>
+
       </div>
-    </aside>
+
+    </div>
   );
 }

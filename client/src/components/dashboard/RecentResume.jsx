@@ -10,7 +10,6 @@ import {
   HiArrowTrendingUp,
 } from "react-icons/hi2";
 
-import Card from "../common/Card";
 import LoadingSpinner from "../common/LoadingSpinner";
 import EmptyState from "../common/EmptyState";
 
@@ -29,14 +28,11 @@ function RecentResume() {
     try {
       const token = localStorage.getItem("token");
 
-      const { data } = await axios.get(
-        `${API_URL}/history`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const { data } = await axios.get(`${API_URL}/history`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (data.success) {
         const resumeList = Array.isArray(data.resumes)
@@ -53,156 +49,188 @@ function RecentResume() {
     }
   };
 
+  /* =========================
+     Loading
+  ========================= */
+
   if (loading) {
     return (
-      <LoadingSpinner text="Loading recent resumes..." />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex h-full min-h-[500px] items-center justify-center rounded-3xl border border-slate-700/70 bg-slate-900/80 p-6 shadow-xl backdrop-blur-sm"
+      >
+        <LoadingSpinner />
+      </motion.div>
     );
   }
+
+  /* =========================
+     Empty State
+  ========================= */
 
   if (!resumes.length) {
     return (
-      <EmptyState
-        title="No Resume Found"
-        description="Upload your first resume to start analyzing."
-      />
-    );
-  }
-  return (
-  <Card className="w-full rounded-3xl overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex h-full min-h-[500px] flex-col rounded-3xl border border-slate-700/70 bg-slate-900/80 p-5 shadow-xl backdrop-blur-sm sm:p-6"
+      >
+        <div>
+          <h2 className="text-xl font-bold text-white sm:text-2xl">
+            Recent Resumes
+          </h2>
 
-    {/* Header */}
-
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-
-      <div>
-
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Recent Resumes
-        </h2>
-
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
-          Your latest uploaded resumes
-        </p>
-
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-
-        <div className="rounded-xl bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-          {totalFiles} Files
+          <p className="mt-1 text-sm text-slate-400">
+            Your latest uploaded resumes
+          </p>
         </div>
 
-        <Link
-          to="/history"
-          className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-        >
-          View All →
-        </Link>
+        <div className="flex flex-1 items-center justify-center">
+          <EmptyState
+            title="No resumes yet"
+            description="Upload and analyze your first resume to see it here."
+          />
+        </div>
+      </motion.div>
+    );
+  }
 
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 25 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="flex h-full flex-col rounded-3xl border border-slate-700/70 bg-slate-900/80 p-5 shadow-xl backdrop-blur-sm sm:p-6"
+    >
+      {/* =========================
+          Header
+      ========================= */}
+
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-white sm:text-2xl">
+            Recent Resumes
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-400">
+            Your latest uploaded resumes
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="rounded-full bg-blue-500/15 px-3 py-2 text-xs font-semibold text-blue-300 sm:px-4 sm:text-sm">
+            {totalFiles} Files
+          </span>
+
+          <Link
+            to="/history"
+            className="rounded-full bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:bg-slate-700 hover:text-white sm:px-4 sm:text-sm"
+          >
+            View All →
+          </Link>
+        </div>
       </div>
 
-    </div>
+      {/* =========================
+          Resume List
+      ========================= */}
 
-    {/* Resume Cards */}
+      <div className="mt-6 flex flex-1 flex-col gap-4">
+        {resumes.map((resume, index) => {
+          const score = resume.score ?? 0;
 
-    <div className="space-y-5">
+          return (
+            <motion.div
+              key={resume._id}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.35,
+                delay: index * 0.08,
+              }}
+              whileHover={{
+                y: -3,
+              }}
+              className="group flex flex-1 flex-col justify-between rounded-2xl border border-slate-700 bg-slate-800/70 p-4 transition-all duration-300 hover:border-cyan-400/70 hover:bg-slate-800 hover:shadow-lg hover:shadow-cyan-500/10"
+            >
+              {/* Top */}
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex min-w-0 items-start gap-3">
+                  {/* File Icon */}
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15">
+                    <HiDocumentText className="text-2xl text-cyan-400" />
+                  </div>
 
-      {resumes.map((resume, index) => (
+                  {/* File Information */}
+                  <div className="min-w-0">
+                    <h3
+                      className="break-words text-base font-bold text-white"
+                      title={resume.fileName}
+                    >
+                      {resume.fileName}
+                    </h3>
 
-        <motion.div
-          key={resume._id}
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-          whileHover={{ y: -3 }}
-          className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-sm hover:shadow-lg transition-all"
-        >
+                    <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
+                      <HiCalendar className="text-sm" />
 
-          {/* Top */}
-
-          <div className="flex items-start gap-4">
-
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
-
-              <HiDocumentText className="text-3xl text-white" />
-
-            </div>
-
-            <div className="flex-1 min-w-0">
-
-              <h3
-                className="text-lg font-semibold text-slate-900 dark:text-white break-words"
-                title={resume.fileName}
-              >
-                {resume.fileName}
-              </h3>
-
-              <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-
-                <HiCalendar />
-
-                {new Date(resume.createdAt).toLocaleDateString()}
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* Bottom */}
-
-          <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-
-            <div className="flex flex-wrap gap-4">
-
-              <div className="rounded-xl bg-green-100 dark:bg-green-900/30 px-4 py-3 min-w-[120px]">
-
-                <p className="text-xs text-slate-500">
-                  ATS Score
-                </p>
-
-                <p className="text-xl font-bold text-green-700 dark:text-green-400 mt-1">
-                  {resume.score ?? 0}%
-                </p>
-
-              </div>
-
-              <div className="rounded-xl bg-blue-100 dark:bg-blue-900/30 px-4 py-3 min-w-[140px]">
-
-                <div className="flex items-center gap-2 font-semibold text-blue-700 dark:text-blue-400">
-
-                  <HiArrowTrendingUp />
-
-                  Optimized
-
+                      <span>
+                        {resume.createdAt
+                          ? new Date(
+                              resume.createdAt
+                            ).toLocaleDateString()
+                          : "Date unavailable"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
+                {/* ATS Score */}
+                <div className="shrink-0 rounded-xl bg-emerald-500/10 px-3 py-2">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                    ATS Score
+                  </p>
+
+                  <p className="mt-0.5 text-lg font-bold text-emerald-400">
+                    {score}%
+                  </p>
+                </div>
               </div>
 
-            </div>
+              {/* Bottom */}
+              <div className="mt-5 flex items-center justify-between gap-3">
+                {/* Optimized Badge */}
+                <div className="flex items-center gap-2 rounded-full bg-blue-500/15 px-3 py-2">
+                  <HiArrowTrendingUp className="text-sm text-blue-400" />
 
-            <Link
-              to={`/analysis/${resume._id}`}
-              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.02] hover:shadow-xl w-full lg:w-auto"
-            >
+                  <span className="text-xs font-semibold text-blue-300">
+                    {score >= 70
+                      ? "Optimized"
+                      : "Needs Improvement"}
+                  </span>
+                </div>
 
-              <HiEye />
+                {/* View Analysis */}
+                <Link
+                  to={`/analysis/${resume._id}`}
+                  className="group/btn flex items-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-xs font-bold text-white transition-all duration-300 hover:bg-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 sm:px-5 sm:py-3 sm:text-sm"
+                >
+                  <HiEye className="text-base sm:text-lg" />
 
-              View Analysis
+                  <span>View Analysis</span>
 
-            </Link>
-
-          </div>
-
-        </motion.div>
-
-      ))}
-
-    </div>
-
-  </Card>
-);
-
+                  <span className="transition-transform duration-300 group-hover/btn:translate-x-1">
+                    →
+                  </span>
+                </Link>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
 }
 
 export default RecentResume;

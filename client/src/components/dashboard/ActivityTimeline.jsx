@@ -8,7 +8,6 @@ import {
 
 import useDashboard from "../../hooks/useDashboard";
 
-
 /* =========================================
    FORMAT ACTIVITY TIME
 ========================================= */
@@ -55,7 +54,6 @@ function formatTime(date) {
   return activityDate.toLocaleDateString();
 }
 
-
 /* =========================================
    ACTIVITY ICON
 ========================================= */
@@ -72,7 +70,6 @@ function getActivityIcon(type) {
       return HiDocumentText;
   }
 }
-
 
 /* =========================================
    ACTIVITY COLOR
@@ -91,7 +88,6 @@ function getActivityColor(type) {
   }
 }
 
-
 /* =========================================
    ACTIVITY TIMELINE
 ========================================= */
@@ -102,6 +98,8 @@ export default function ActivityTimeline() {
     loading,
   } = useDashboard();
 
+  // Show only the 4 most recent activities
+  const visibleActivities = activities.slice(0, 4);
 
   return (
     <motion.div
@@ -130,14 +128,13 @@ export default function ActivityTimeline() {
         dark:bg-slate-900
       "
     >
-
       {/* =====================================
           HEADER
       ====================================== */}
 
       <div
         className="
-          mb-6
+          mb-5
           flex
           items-start
           justify-between
@@ -145,7 +142,6 @@ export default function ActivityTimeline() {
         "
       >
         <div className="min-w-0">
-
           <h2
             className="
               text-xl
@@ -169,9 +165,7 @@ export default function ActivityTimeline() {
           >
             Your latest AI resume activities
           </p>
-
         </div>
-
 
         {/* Clock */}
 
@@ -199,9 +193,7 @@ export default function ActivityTimeline() {
             "
           />
         </div>
-
       </div>
-
 
       {/* =====================================
           LOADING STATE
@@ -209,12 +201,11 @@ export default function ActivityTimeline() {
 
       {loading && (
         <div className="space-y-4">
-
-          {[1, 2, 3].map((item) => (
+          {[1, 2, 3, 4].map((item) => (
             <div
               key={item}
               className="
-                h-24
+                h-20
                 animate-pulse
                 rounded-2xl
                 bg-slate-100
@@ -222,10 +213,8 @@ export default function ActivityTimeline() {
               "
             />
           ))}
-
         </div>
       )}
-
 
       {/* =====================================
           EMPTY STATE
@@ -250,7 +239,6 @@ export default function ActivityTimeline() {
             dark:bg-slate-800/50
           "
         >
-
           <div
             className="
               mb-4
@@ -273,7 +261,6 @@ export default function ActivityTimeline() {
             />
           </div>
 
-
           <h3
             className="
               text-lg
@@ -284,7 +271,6 @@ export default function ActivityTimeline() {
           >
             No recent activity
           </h3>
-
 
           <p
             className="
@@ -298,25 +284,21 @@ export default function ActivityTimeline() {
             Your resume activities will appear here after
             you upload and analyze a resume.
           </p>
-
         </div>
       )}
-
 
       {/* =====================================
           ACTIVITIES
       ====================================== */}
 
-      {!loading && activities.length > 0 && (
-        <div className="space-y-5">
-
-          {activities.map((activity, index) => {
+      {!loading && visibleActivities.length > 0 && (
+        <div className="space-y-4">
+          {visibleActivities.map((activity, index) => {
             const Icon = getActivityIcon(activity.type);
 
             const color = getActivityColor(
               activity.type
             );
-
 
             return (
               <motion.div
@@ -343,7 +325,6 @@ export default function ActivityTimeline() {
                   sm:gap-4
                 "
               >
-
                 {/* =================================
                     ICON + CONNECTING LINE
                 ================================== */}
@@ -356,7 +337,6 @@ export default function ActivityTimeline() {
                     items-center
                   "
                 >
-
                   <div
                     className={`
                       flex
@@ -380,22 +360,19 @@ export default function ActivityTimeline() {
                     />
                   </div>
 
-
-                  {index !== activities.length - 1 && (
+                  {/* Line only between visible activities */}
+                  {index !== visibleActivities.length - 1 && (
                     <div
                       className="
                         mt-2
-                        min-h-[35px]
+                        h-6
                         w-0.5
-                        flex-1
                         bg-slate-200
                         dark:bg-slate-700
                       "
                     />
                   )}
-
                 </div>
-
 
                 {/* =================================
                     ACTIVITY CONTENT
@@ -416,7 +393,6 @@ export default function ActivityTimeline() {
                     dark:hover:bg-slate-700
                   "
                 >
-
                   {/* Title + Time */}
 
                   <div
@@ -430,7 +406,6 @@ export default function ActivityTimeline() {
                       sm:gap-3
                     "
                   >
-
                     <h3
                       className="
                         break-words
@@ -442,7 +417,6 @@ export default function ActivityTimeline() {
                       {activity.title}
                     </h3>
 
-
                     <span
                       className="
                         flex-shrink-0
@@ -453,34 +427,28 @@ export default function ActivityTimeline() {
                     >
                       {formatTime(activity.time)}
                     </span>
-
                   </div>
-
 
                   {/* Description */}
 
                   <p
                     className="
-                      mt-2
+                      mt-1.5
                       break-words
                       text-sm
-                      leading-6
+                      leading-5
                       text-slate-600
                       dark:text-slate-400
                     "
                   >
                     {activity.description}
                   </p>
-
                 </div>
-
               </motion.div>
             );
           })}
-
         </div>
       )}
-
     </motion.div>
   );
 }
