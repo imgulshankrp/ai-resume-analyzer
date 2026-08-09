@@ -3,15 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 
 import {
   HiMenu,
-  HiX,
   HiBell,
   HiSearch,
-  HiLogout,
   HiChevronDown,
-  HiPlus,
 } from "react-icons/hi";
 
-import { FaRobot } from "react-icons/fa";
+import { FaFileAlt } from "react-icons/fa";
 import { FiSun, FiMoon } from "react-icons/fi";
 
 import { ThemeContext } from "../../context/ThemeContext";
@@ -25,27 +22,35 @@ import {
 
 import { searchResumes } from "../../services/historyService";
 
-
 export default function Navbar({
-  sidebarOpen = false,
+  sidebarOpen,
   onMenuClick,
 }) {
   const navigate = useNavigate();
 
-  const { darkMode, toggleTheme } = useContext(ThemeContext);
+  const { darkMode, toggleTheme } =
+    useContext(ThemeContext);
 
-  const BACKEND_URL = import.meta.env.VITE_API_URL.replace("/api", "");
+  const BACKEND_URL =
+    import.meta.env.VITE_API_URL.replace("/api", "");
 
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
   const searchRef = useRef(null);
 
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
+  const [showNotifications, setShowNotifications] =
+    useState(false);
+
+  const [showProfile, setShowProfile] =
+    useState(false);
 
   const [search, setSearch] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const [suggestions, setSuggestions] =
+    useState([]);
+
+  const [showSuggestions, setShowSuggestions] =
+    useState(false);
 
   const [user, setUser] = useState({
     name: "",
@@ -53,9 +58,11 @@ export default function Navbar({
     avatar: "",
   });
 
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] =
+    useState([]);
 
+  const [unreadCount, setUnreadCount] =
+    useState(0);
 
   /* =====================================================
      LOAD PROFILE + NOTIFICATIONS
@@ -72,14 +79,12 @@ export default function Navbar({
     return () => clearInterval(interval);
   }, []);
 
-
   /* =====================================================
      CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
   ===================================================== */
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-
       if (
         notificationRef.current &&
         !notificationRef.current.contains(event.target)
@@ -102,7 +107,10 @@ export default function Navbar({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
 
     return () => {
       document.removeEventListener(
@@ -111,7 +119,6 @@ export default function Navbar({
       );
     };
   }, []);
-
 
   /* =====================================================
      PROFILE
@@ -130,7 +137,6 @@ export default function Navbar({
       console.error(err);
     }
   };
-
 
   /* =====================================================
      NOTIFICATIONS
@@ -152,7 +158,6 @@ export default function Navbar({
     }
   };
 
-
   const handleNotificationClick = async (id) => {
     try {
       await markAsRead(id);
@@ -163,9 +168,9 @@ export default function Navbar({
     }
   };
 
-
   /* =====================================================
      SEARCH
+     Desktop only
   ===================================================== */
 
   const handleSearchChange = async (e) => {
@@ -189,7 +194,6 @@ export default function Navbar({
     }
   };
 
-
   const handleSearchKeyDown = (e) => {
     if (e.key !== "Enter") return;
 
@@ -204,26 +208,14 @@ export default function Navbar({
     setShowSuggestions(false);
   };
 
-
-  /* =====================================================
-     LOGOUT
-  ===================================================== */
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    navigate("/login", {
-      replace: true,
-    });
-  };
-
-
   return (
     <nav
       className="
-        sticky top-0 z-50
-        border-b border-slate-200
+        sticky
+        top-0
+        z-50
+        border-b
+        border-slate-200
         bg-white/90
         shadow-sm
         backdrop-blur-xl
@@ -254,15 +246,13 @@ export default function Navbar({
 
         <div className="flex shrink-0 items-center gap-3">
 
-          {/* Hamburger */}
+          {/* HAMBURGER */}
+
           <button
             type="button"
             onClick={onMenuClick}
-            aria-label={
-              sidebarOpen
-                ? "Close sidebar"
-                : "Open sidebar"
-            }
+            aria-label="Toggle sidebar"
+            title="Toggle sidebar"
             className="
               flex
               h-11
@@ -285,15 +275,11 @@ export default function Navbar({
               dark:hover:bg-slate-700
             "
           >
-            {sidebarOpen ? (
-              <HiX className="text-2xl" />
-            ) : (
-              <HiMenu className="text-2xl" />
-            )}
+            <HiMenu className="text-2xl" />
           </button>
 
+          {/* LOGO */}
 
-          {/* Logo */}
           <Link
             to="/dashboard"
             className="
@@ -322,11 +308,11 @@ export default function Navbar({
                 sm:rounded-2xl
               "
             >
-              <FaRobot className="text-lg text-white sm:text-xl" />
+              <FaFileAlt className="text-lg text-white sm:text-xl" />
             </div>
 
-
             <div>
+
               <h1
                 className="
                   text-lg
@@ -350,15 +336,17 @@ export default function Navbar({
               >
                 AI Resume Analyzer
               </p>
+
             </div>
 
           </Link>
 
         </div>
 
-
         {/* =================================================
-            SEARCH
+            DESKTOP SEARCH ONLY
+
+            Mobile search is intentionally hidden.
         ================================================= */}
 
         <div
@@ -424,8 +412,7 @@ export default function Navbar({
 
           </div>
 
-
-          {/* Search Suggestions */}
+          {/* SEARCH SUGGESTIONS */}
 
           {showSuggestions && (
             <div
@@ -465,6 +452,7 @@ export default function Navbar({
               ) : (
 
                 suggestions.map((resume) => (
+
                   <button
                     key={resume._id}
                     onClick={() => {
@@ -490,6 +478,7 @@ export default function Navbar({
                   >
 
                     <div>
+
                       <p
                         className="
                           font-semibold
@@ -509,6 +498,7 @@ export default function Navbar({
                       >
                         ATS Score : {resume.score}%
                       </p>
+
                     </div>
 
                     <span
@@ -528,6 +518,7 @@ export default function Navbar({
                     </span>
 
                   </button>
+
                 ))
 
               )}
@@ -536,7 +527,6 @@ export default function Navbar({
           )}
 
         </div>
-
 
         {/* =================================================
             RIGHT SIDE
@@ -551,33 +541,6 @@ export default function Navbar({
             sm:gap-3
           "
         >
-
-          {/* Upload - Desktop */}
-          <button
-            onClick={() => navigate("/upload")}
-            className="
-              hidden
-              items-center
-              gap-2
-              rounded-xl
-              bg-gradient-to-r
-              from-blue-600
-              to-indigo-600
-              px-5
-              py-3
-              font-semibold
-              text-white
-              shadow-lg
-              transition
-              hover:-translate-y-0.5
-              hover:shadow-xl
-              lg:flex
-            "
-          >
-            <HiPlus className="text-lg" />
-            Upload Resume
-          </button>
-
 
           {/* =================================================
               NOTIFICATIONS
@@ -648,8 +611,7 @@ export default function Navbar({
 
             </button>
 
-
-            {/* Notification Dropdown */}
+            {/* NOTIFICATION DROPDOWN */}
 
             {showNotifications && (
               <div
@@ -680,6 +642,7 @@ export default function Navbar({
                     dark:border-slate-700
                   "
                 >
+
                   <h3
                     className="
                       text-lg
@@ -690,8 +653,8 @@ export default function Navbar({
                   >
                     Notifications
                   </h3>
-                </div>
 
+                </div>
 
                 <div className="max-h-96 overflow-y-auto">
 
@@ -710,6 +673,7 @@ export default function Navbar({
                   ) : (
 
                     notifications.map((item) => (
+
                       <button
                         key={item._id}
                         onClick={() =>
@@ -779,12 +743,12 @@ export default function Navbar({
                         </div>
 
                       </button>
+
                     ))
 
                   )}
 
                 </div>
-
 
                 <button
                   onClick={() => {
@@ -811,9 +775,8 @@ export default function Navbar({
 
           </div>
 
-
           {/* =================================================
-              THEME - DESKTOP
+              DESKTOP THEME BUTTON
           ================================================= */}
 
           <button
@@ -837,13 +800,16 @@ export default function Navbar({
           >
 
             {darkMode ? (
+
               <FiSun
                 className="
                   text-xl
                   text-yellow-400
                 "
               />
+
             ) : (
+
               <FiMoon
                 className="
                   text-xl
@@ -851,10 +817,10 @@ export default function Navbar({
                   dark:text-white
                 "
               />
+
             )}
 
           </button>
-
 
           {/* =================================================
               PROFILE
@@ -937,8 +903,8 @@ export default function Navbar({
 
               </div>
 
-
               <div className="hidden xl:block">
+
                 <p
                   className="
                     text-left
@@ -949,8 +915,8 @@ export default function Navbar({
                 >
                   {user.name || "User"}
                 </p>
-              </div>
 
+              </div>
 
               <HiChevronDown
                 className="
@@ -962,12 +928,12 @@ export default function Navbar({
 
             </button>
 
-
             {/* =================================================
                 PROFILE DROPDOWN
             ================================================= */}
 
             {showProfile && (
+
               <div
                 className="
                   absolute
@@ -986,6 +952,8 @@ export default function Navbar({
                   dark:bg-slate-900
                 "
               >
+
+                {/* PROFILE INFO */}
 
                 <div
                   className="
@@ -1049,7 +1017,6 @@ export default function Navbar({
 
                   </div>
 
-
                   <div className="min-w-0">
 
                     <h3
@@ -1077,6 +1044,7 @@ export default function Navbar({
 
                 </div>
 
+                {/* MY PROFILE */}
 
                 <button
                   onClick={() => {
@@ -1098,6 +1066,7 @@ export default function Navbar({
                   👤 My Profile
                 </button>
 
+                {/* SETTINGS */}
 
                 <button
                   onClick={() => {
@@ -1119,56 +1088,54 @@ export default function Navbar({
                   ⚙️ Settings
                 </button>
 
+                {/* THEME */}
 
                 <button
-                  onClick={() => {
-                    navigate("/notifications");
-                    setShowProfile(false);
-                  }}
+                  type="button"
+                  onClick={toggleTheme}
                   className="
-                    block
+                    flex
                     w-full
+                    items-center
+                    justify-between
                     px-5
                     py-3
                     text-left
+                    text-slate-700
                     transition
                     hover:bg-slate-100
                     dark:text-white
                     dark:hover:bg-slate-800
                   "
+                  aria-label="Toggle dark mode"
                 >
-                  🔔 Notifications
-                </button>
 
+                  <span>
+                    {darkMode
+                      ? "☀️ Light Mode"
+                      : "🌙 Dark Mode"}
+                  </span>
 
-                <hr
-                  className="
-                    border-slate-200
-                    dark:border-slate-700
-                  "
-                />
+                  <span
+                    className="
+                      rounded-full
+                      bg-slate-100
+                      px-2.5
+                      py-1
+                      text-xs
+                      font-semibold
+                      text-slate-600
+                      dark:bg-slate-700
+                      dark:text-slate-200
+                    "
+                  >
+                    {darkMode ? "On" : "Off"}
+                  </span>
 
-
-                <button
-                  onClick={handleLogout}
-                  className="
-                    flex
-                    w-full
-                    items-center
-                    gap-2
-                    px-5
-                    py-3
-                    text-red-600
-                    transition
-                    hover:bg-red-50
-                    dark:hover:bg-red-900/20
-                  "
-                >
-                  <HiLogout />
-                  Logout
                 </button>
 
               </div>
+
             )}
 
           </div>
