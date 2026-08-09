@@ -3,7 +3,13 @@ import Navbar from "../common/Navbar";
 import Sidebar from "../common/Sidebar";
 
 export default function MainLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Desktop: sidebar open by default
+  // Mobile/tablet: sidebar closed by default
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+
+    return window.innerWidth >= 1024;
+  });
 
   const handleMenuClick = () => {
     setSidebarOpen((prev) => !prev);
