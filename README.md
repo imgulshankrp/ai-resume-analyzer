@@ -191,25 +191,31 @@ AI Resume Analyzer
 ├── package-lock.json
 └── README.md
 ```
-
 ## 📸 Screenshots
 
-### 🏠 Dashboard
+### 🏠 Home Page
+<img src="screenshots/HomePage.jpeg" width="900"/>
 
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.45%20%282%29.jpeg" width="900"/>
+### 🔐 Login
+<img src="screenshots/Login.jpeg" width="900"/>
+
+### 📤 Resume Upload
+<img src="screenshots/Resume Upload.jpeg" width="900"/>
+
+### 📊 Dashboard
+<img src="screenshots/Dashboard.jpeg" width="900"/>
 
 ### 📄 Resume Analysis
-
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.46%20%281%29.jpeg" width="900"/>
+<img src="screenshots/Resume Analysis.jpeg" width="900"/>
 
 ### 💪 Resume Strengths & Weaknesses
-
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.46%20%282%29.jpeg" width="900"/>
-
-### 📤 Upload Resume
-
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.47%20%281%29.jpeg" width="900"/>
+<img src="screenshots/Strengths Weaknesses.jpeg" width="900"/>
 
 ### 🎯 Job Description Matcher
+<img src="screenshots/Job Description Matcher.jpeg" width="900"/>
 
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.50.jpeg" width="900"/>
+### 🔄 Compare Resume
+<img src="screenshots/Compare Resume.jpeg" width="900"/>
+
+### 📚 Resume History
+<img src="screenshots/Resume History.jpeg" width="900"/>
