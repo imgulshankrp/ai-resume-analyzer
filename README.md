@@ -195,16 +195,21 @@ AI Resume Analyzer
 ## 📸 Screenshots
 
 ### 🏠 Dashboard
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.45%20(2).jpeg" width="900"/>
+
+<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.45%20%282%29.jpeg" width="900"/>
 
 ### 📄 Resume Analysis
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.46%20(1).jpeg" width="900"/>
+
+<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.46%20%281%29.jpeg" width="900"/>
 
 ### 💪 Resume Strengths & Weaknesses
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.46%20(2).jpeg" width="900"/>
+
+<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.46%20%282%29.jpeg" width="900"/>
 
 ### 📤 Upload Resume
-<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.47%20(1).jpeg" width="900"/>
+
+<img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.47%20%281%29.jpeg" width="900"/>
 
 ### 🎯 Job Description Matcher
+
 <img src="screenshots/WhatsApp%20Image%202026-08-12%20at%2013.56.50.jpeg" width="900"/>
