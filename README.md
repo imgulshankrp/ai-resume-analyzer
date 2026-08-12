@@ -190,6 +190,8 @@ AI Resume Analyzer
 ├── package.json
 ├── package-lock.json
 └── README.md
+```
+
 ## 📸 Screenshots
 
 ### 🏠 Dashboard
