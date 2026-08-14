@@ -1,328 +1,459 @@
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import {
-  FaCheckCircle,
-  FaFileAlt,
-  FaRobot,
-  FaChartLine,
-} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function Hero() {
+  const navigate = useNavigate();
+
   return (
     <section
       className="
         relative
-        overflow-hidden
-        min-h-screen
         flex
+        min-h-screen
         items-center
-        bg-gradient-to-br
-        from-blue-700
-        via-indigo-700
-        to-purple-800
+        overflow-hidden
+        bg-[#07111F]
+        px-5
+        pb-12
+        pt-28
+        sm:px-8
+        lg:px-10
       "
     >
-      {/* Background Blur */}
 
-      <div className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-cyan-400/20 blur-3xl"></div>
+      {/* =====================================
+          BACKGROUND GLOW
+      ====================================== */}
 
-      <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-pink-400/20 blur-3xl"></div>
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -left-40
+          top-20
+          h-96
+          w-96
+          rounded-full
+          bg-teal-500/10
+          blur-3xl
+        "
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -right-40
+          bottom-0
+          h-[500px]
+          w-[500px]
+          rounded-full
+          bg-blue-500/10
+          blur-3xl
+        "
+      />
+
+
+      {/* =====================================
+          CONTENT
+      ====================================== */}
 
       <div
         className="
           relative
           mx-auto
           grid
+          w-full
           max-w-7xl
-          grid-cols-1
-          gap-16
-          px-6
-          py-12
-          lg:grid-cols-2
-          lg:py-20
           items-center
+          gap-12
+          lg:grid-cols-[1.05fr_0.95fr]
         "
       >
 
-        {/* Left Side */}
+        {/* ===================================
+            LEFT
+        ==================================== */}
 
-        <motion.div
-          initial={{ opacity: 0, x: -70 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+        <div className="max-w-2xl">
 
-          <span
+          {/* Badge */}
+          <div
             className="
+              mb-6
               inline-flex
               items-center
+              gap-2
               rounded-full
-              bg-white/20
-              px-5
+              border
+              border-teal-400/20
+              bg-teal-400/[0.08]
+              px-4
               py-2
-              text-sm
+              text-xs
               font-semibold
-              text-white
-              backdrop-blur-md
+              tracking-wide
+              text-teal-300
+              sm:text-sm
             "
           >
-            🚀 AI Powered Resume Analyzer
-          </span>
+            <span className="h-2 w-2 rounded-full bg-teal-400" />
 
+            AI-POWERED RESUME ANALYZER
+          </div>
+
+
+          {/* Heading */}
           <h1
             className="
-              mt-8
               text-4xl
               font-extrabold
-              leading-tight
+              leading-[1.05]
+              tracking-[-0.03em]
               text-white
               sm:text-5xl
-              lg:text-7xl
+              lg:text-6xl
+              xl:text-7xl
             "
           >
-            Build a Resume
-
+            Build a resume
             <br />
 
-            That Lands
+            that gets you
 
-            <span className="text-yellow-300">
-              {" "}
-              More Interviews
+            <span
+              className="
+                block
+                bg-gradient-to-r
+                from-teal-300
+                via-cyan-300
+                to-blue-400
+                bg-clip-text
+                text-transparent
+              "
+            >
+              noticed.
             </span>
           </h1>
 
+
+          {/* Description */}
           <p
             className="
-              mt-8
+              mt-6
               max-w-xl
-              text-lg
-              leading-8
-              text-blue-100
-              lg:text-xl
+              text-base
+              leading-7
+              text-slate-400
+              sm:text-lg
             "
           >
-            Analyze your resume with AI, improve ATS compatibility,
-            compare resumes, match job descriptions,
-            chat with your resume, and download
-            professional reports—all in one place.
+            Analyze your resume, improve ATS compatibility,
+            discover missing skills, and match your profile
+            with real job opportunities — all in one place.
           </p>
 
-          <div className="mt-10 flex flex-col gap-5 sm:flex-row">
 
-            <Link
-              to="/upload"
-              className="
-                rounded-xl
-                bg-white
-                px-8
-                py-4
-                text-center
-                font-semibold
-                text-blue-700
-                shadow-xl
-                transition-all
-                duration-300
-                hover:scale-105
-              "
-            >
-              Analyze Resume →
-            </Link>
+          {/* CTA */}
+          <div className="mt-8 flex flex-wrap items-center gap-4">
 
-            <a
-              href="#features"
+            <button
+              onClick={() => navigate("/signup")}
               className="
+                group
+                inline-flex
+                items-center
+                gap-2
                 rounded-xl
-                border-2
-                border-white
-                px-8
-                py-4
-                text-center
-                font-semibold
+                bg-gradient-to-r
+                from-teal-400
+                to-blue-500
+                px-6
+                py-3.5
+                text-sm
+                font-bold
                 text-white
-                transition-all
+                shadow-xl
+                shadow-teal-500/20
+                transition
                 duration-300
-                hover:bg-white
-                hover:text-blue-700
+                hover:-translate-y-1
+                hover:shadow-2xl
+                hover:shadow-teal-500/30
+                sm:px-7
               "
             >
-              Explore Features
-            </a>
+              Analyze My Resume
 
-          </div>
-                    {/* Statistics */}
-
-          <div className="mt-20 mb-10 grid grid-cols-3 gap-8">
-
-            <motion.div
-              whileHover={{ y: -5 }}
-              className="
-                rounded-2xl
-                bg-white/10
-                p-5
-                backdrop-blur-md
-              "
-            >
-              <h2 className="text-4xl font-bold text-white">
-                95%
-              </h2>
-
-              <p className="mt-2 text-blue-100">
-                ATS Accuracy
-              </p>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ y: -5 }}
-              className="
-                rounded-2xl
-                bg-white/10
-                p-5
-                backdrop-blur-md
-              "
-            >
-              <h2 className="text-4xl font-bold text-white">
-                AI
-              </h2>
-
-              <p className="mt-2 text-blue-100">
-                Resume Analysis
-              </p>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ y: -5 }}
-              className="
-                rounded-2xl
-                bg-white/10
-                p-5
-                backdrop-blur-md
-              "
-            >
-              <h2 className="text-4xl font-bold text-white">
-                PDF
-              </h2>
-
-              <p className="mt-2 text-blue-100">
-                Professional Reports
-              </p>
-            </motion.div>
+              <span
+                className="
+                  transition-transform
+                  duration-300
+                  group-hover:translate-x-1
+                "
+              >
+                →
+              </span>
+            </button>
 
           </div>
 
-        </motion.div>
 
-        {/* Right Side */}
+          {/* Trust indicators */}
+          <div
+            className="
+              mt-8
+              flex
+              flex-wrap
+              gap-x-6
+              gap-y-3
+              text-xs
+              text-slate-500
+              sm:text-sm
+            "
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-teal-400">✓</span>
+              ATS Analysis
+            </span>
 
-        <motion.div
-          initial={{ opacity: 0, x: 70 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="flex justify-center lg:mt-8"
-        >
+            <span className="flex items-center gap-2">
+              <span className="text-teal-400">✓</span>
+              AI Suggestions
+            </span>
+
+            <span className="flex items-center gap-2">
+              <span className="text-teal-400">✓</span>
+              Job Matching
+            </span>
+          </div>
+
+        </div>
+
+
+        {/* ===================================
+            RIGHT — ANALYSIS CARD
+        ==================================== */}
+
+        <div className="relative mx-auto w-full max-w-md">
+
+          {/* Glow */}
+          <div
+            className="
+              absolute
+              inset-10
+              rounded-full
+              bg-teal-400/10
+              blur-3xl
+            "
+          />
+
 
           <div
             className="
-              w-[360px]
+              relative
               rounded-3xl
               border
-              border-gray-200
-              bg-white
-              p-8
+              border-white/10
+              bg-[#0D1B2C]/90
+              p-6
               shadow-2xl
-              transition-all
-              duration-300
-              dark:border-slate-700
-              dark:bg-slate-900
+              shadow-black/40
+              backdrop-blur-xl
+              sm:p-7
             "
           >
 
-            <div className="mb-6 flex items-center gap-3">
+            {/* Card Header */}
+            <div className="flex items-center justify-between">
 
-              <FaFileAlt className="text-3xl text-blue-600 dark:text-blue-400" />
+              <div className="flex items-center gap-3">
 
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Resume Analysis
-              </h3>
+                <div
+                  className="
+                    flex
+                    h-11
+                    w-11
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-teal-400/10
+                    text-xl
+                  "
+                >
+                  📄
+                </div>
 
-            </div>
+                <div>
+                  <h3 className="font-bold text-white">
+                    Resume Analysis
+                  </h3>
 
-            <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-full border-[10px] border-green-500">
+                  <p className="text-xs text-slate-500">
+                    Latest analysis
+                  </p>
+                </div>
 
-              <span className="text-5xl font-bold text-green-600 dark:text-green-400">
-                92%
+              </div>
+
+
+              <span
+                className="
+                  rounded-full
+                  border
+                  border-teal-400/20
+                  bg-teal-400/10
+                  px-3
+                  py-1
+                  text-xs
+                  font-semibold
+                  text-teal-300
+                "
+              >
+                Completed
               </span>
 
             </div>
 
-            <div className="mt-8 space-y-5">
 
-              <div className="flex items-center justify-between">
+            {/* Score */}
+            <div className="flex justify-center py-8">
 
-                <span className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
-                  <FaCheckCircle className="text-green-500" />
-                  ATS Friendly
-                </span>
+              <div
+                className="
+                  flex
+                  h-40
+                  w-40
+                  flex-col
+                  items-center
+                  justify-center
+                  rounded-full
+                  border-[8px]
+                  border-teal-400/20
+                  bg-teal-400/[0.04]
+                  shadow-[0_0_50px_rgba(20,184,166,0.12)]
+                "
+              >
 
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  ✔
-                </span>
-
-              </div>
-
-              <div className="flex items-center justify-between">
-
-                <span className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
-                  <FaRobot className="text-purple-500" />
-                  AI Suggestions
-                </span>
-
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  ✔
-                </span>
-
-              </div>
-
-              <div className="flex items-center justify-between">
-
-                <span className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
-                  <FaChartLine className="text-blue-500" />
-                  Job Match
-                </span>
-
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span
+                  className="
+                    text-4xl
+                    font-extrabold
+                    text-teal-300
+                  "
+                >
                   92%
                 </span>
 
+                <span className="mt-1 text-xs text-slate-500">
+                  ATS Score
+                </span>
+
               </div>
 
-              <div className="flex items-center justify-between">
+            </div>
 
-                <span className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
-                  <FaFileAlt className="text-red-500" />
+
+            {/* Analysis Items */}
+            <div className="space-y-3">
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  rounded-xl
+                  border
+                  border-white/[0.06]
+                  bg-white/[0.03]
+                  px-4
+                  py-3
+                "
+              >
+                <span className="text-sm text-slate-300">
+                  ATS Friendly
+                </span>
+
+                <span className="font-bold text-teal-400">
+                  ✓
+                </span>
+              </div>
+
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  rounded-xl
+                  border
+                  border-white/[0.06]
+                  bg-white/[0.03]
+                  px-4
+                  py-3
+                "
+              >
+                <span className="text-sm text-slate-300">
+                  AI Suggestions
+                </span>
+
+                <span className="font-bold text-teal-400">
+                  ✓
+                </span>
+              </div>
+
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  rounded-xl
+                  border
+                  border-white/[0.06]
+                  bg-white/[0.03]
+                  px-4
+                  py-3
+                "
+              >
+                <span className="text-sm text-slate-300">
+                  Job Match
+                </span>
+
+                <span className="font-semibold text-blue-400">
+                  92%
+                </span>
+              </div>
+
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  rounded-xl
+                  border
+                  border-white/[0.06]
+                  bg-white/[0.03]
+                  px-4
+                  py-3
+                "
+              >
+                <span className="text-sm text-slate-300">
                   PDF Report
                 </span>
 
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className="text-sm font-semibold text-slate-300">
                   Ready
                 </span>
-
               </div>
-                          </div>
+
+            </div>
 
           </div>
 
-        </motion.div>
+        </div>
 
       </div>
-
-      {/* Decorative Elements */}
-
-      <div className="pointer-events-none absolute left-16 top-28 hidden h-4 w-4 rounded-full bg-cyan-300/60 lg:block"></div>
-
-      <div className="pointer-events-none absolute right-20 top-40 hidden h-5 w-5 rounded-full bg-pink-300/60 lg:block"></div>
-
-      <div className="pointer-events-none absolute bottom-20 left-1/3 hidden h-6 w-6 rounded-full bg-yellow-300/40 lg:block"></div>
 
     </section>
   );

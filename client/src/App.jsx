@@ -33,7 +33,9 @@ function App() {
 
       <Routes>
 
-        {/* ================= Public Routes ================= */}
+        {/* =====================================================
+            PUBLIC ROUTES
+        ===================================================== */}
 
         <Route element={<PublicRoute />}>
 
@@ -69,59 +71,94 @@ function App() {
 
         </Route>
 
-        {/* ================= Protected Routes ================= */}
+
+        {/* =====================================================
+            PROTECTED ROUTES
+        ===================================================== */}
 
         <Route element={<ProtectedRoute />}>
+
+          {/* Dashboard */}
 
           <Route
             path="/dashboard"
             element={<Dashboard />}
           />
 
+
+          {/* Upload Resume */}
+
           <Route
             path="/upload"
             element={<Upload />}
           />
+
+
+          {/* Resume Analysis */}
 
           <Route
             path="/analysis/:id"
             element={<Analysis />}
           />
 
+
+          {/* Resume Chat */}
+
           <Route
             path="/chat/:id"
             element={<ResumeChatPage />}
           />
 
+
+          {/* Job Matcher */}
+
           <Route
-            path="/jd-matcher"
+            path="/jd-matcher/:id"
             element={<JDMatcherPage />}
           />
+
+
+          {/* Resume History */}
 
           <Route
             path="/history"
             element={<History />}
           />
 
+
+          {/* Resume Comparison */}
+
           <Route
             path="/compare"
             element={<CompareResume />}
           />
+
+
+          {/* Profile */}
 
           <Route
             path="/profile"
             element={<Profile />}
           />
 
+
+          {/* Edit Profile */}
+
           <Route
             path="/profile/edit"
             element={<EditProfile />}
           />
 
+
+          {/* Settings */}
+
           <Route
             path="/settings"
             element={<Settings />}
           />
+
+
+          {/* Notifications */}
 
           <Route
             path="/notifications"
@@ -130,7 +167,10 @@ function App() {
 
         </Route>
 
-        {/* ================= 404 ================= */}
+
+        {/* =====================================================
+            404
+        ===================================================== */}
 
         <Route
           path="*"
@@ -138,6 +178,11 @@ function App() {
         />
 
       </Routes>
+
+
+      {/* =====================================================
+          TOAST
+      ===================================================== */}
 
       <ToastContainer
         position="top-right"

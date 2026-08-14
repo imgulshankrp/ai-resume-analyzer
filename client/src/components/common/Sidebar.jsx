@@ -157,6 +157,32 @@ export default function Sidebar({
   };
 
   // =====================================================
+  // JD MATCHER
+  // =====================================================
+
+  const handleJDMatcher = async () => {
+    const resume = await getLatestResume();
+
+    if (!resume?._id) {
+      closeSidebar();
+
+      navigate("/upload");
+
+      return;
+    }
+
+    if (closeOnNavigation) {
+      closeSidebar();
+    }
+
+    navigate(`/jd-matcher/${resume._id}`, {
+      state: {
+        resume,
+      },
+    });
+  };
+
+  // =====================================================
   // NORMAL NAVIGATION
   // =====================================================
 
@@ -512,19 +538,49 @@ export default function Sidebar({
           </div>
 
 
-          <NavLink
-            to="/jd-matcher"
-            onClick={() =>
-              handleNavigation("/jd-matcher")
-            }
-            className={navClass}
+          <button
+            type="button"
+            onClick={handleJDMatcher}
+            disabled={resumeLoading}
+            className="
+              group
+              flex
+              w-full
+              items-center
+              gap-3
+              rounded-xl
+              px-4
+              py-3
+              text-left
+              text-sm
+              font-medium
+              text-slate-700
+              transition-all
+              duration-200
+              hover:bg-slate-100
+              hover:text-blue-600
+              disabled:cursor-wait
+              disabled:opacity-60
+              dark:text-slate-300
+              dark:hover:bg-slate-800
+              dark:hover:text-blue-400
+            "
           >
-            <Briefcase size={20} />
+            {resumeLoading ? (
+              <Loader2
+                size={20}
+                className="animate-spin"
+              />
+            ) : (
+              <Briefcase size={20} />
+            )}
 
             <span>
-              JD Matcher
+              {resumeLoading
+                ? "Loading..."
+                : "JD Matcher"}
             </span>
-          </NavLink>
+          </button>
 
         </div>
 

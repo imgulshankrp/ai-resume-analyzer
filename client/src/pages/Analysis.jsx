@@ -58,8 +58,49 @@ function Analysis() {
     analysis?.foundSkills ??
     [];
 
+  const allPossibleSkills = [
+    "html",
+    "css",
+    "javascript",
+    "typescript",
+    "react",
+    "nextjs",
+    "node",
+    "express",
+    "mongodb",
+    "mysql",
+    "sql",
+    "python",
+    "java",
+    "c",
+    "c++",
+    "git",
+    "github",
+    "docker",
+    "aws",
+    "tailwind",
+    "bootstrap",
+    "redux",
+    "firebase",
+    "api",
+    "rest",
+    "graphql",
+  ];
+
+  const detectedSkills = Array.isArray(skills)
+    ? skills.map((skill) => String(skill).toLowerCase())
+    : [];
+
+  const backendMissingSkills = Array.isArray(analysis?.missingSkills)
+    ? analysis.missingSkills
+    : Array.isArray(analysis?.analysis?.missingSkills)
+      ? analysis.analysis.missingSkills
+      : [];
+
   const missingSkills =
-    analysis?.analysis?.missingSkills ?? analysis?.missingSkills ?? [];
+    backendMissingSkills.length > 0
+      ? backendMissingSkills
+      : allPossibleSkills.filter((skill) => !detectedSkills.includes(skill));
 
   const suggestions =
     analysis?.analysis?.suggestions ?? analysis?.suggestions ?? [];
@@ -955,9 +996,7 @@ function Analysis() {
             dark:border-slate-800
             dark:bg-slate-900
           "
-        >
-          
-        </motion.div>
+        ></motion.div>
       </motion.div>
     </MainLayout>
   );

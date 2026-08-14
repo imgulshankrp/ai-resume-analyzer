@@ -3,16 +3,24 @@ import Navbar from "../common/Navbar";
 import Sidebar from "../common/Sidebar";
 
 export default function MainLayout({ children }) {
-  // Desktop: sidebar open by default
-  // Mobile/tablet: sidebar closed by default
+  // Desktop → open by default
+  // Mobile/tablet → closed by default
   const [sidebarOpen, setSidebarOpen] = useState(() => {
-    if (typeof window === "undefined") return true;
+    if (typeof window === "undefined") {
+      return true;
+    }
 
     return window.innerWidth >= 1024;
   });
 
+  // Toggle sidebar
   const handleMenuClick = () => {
     setSidebarOpen((prev) => !prev);
+  };
+
+  // Close sidebar
+  const closeSidebar = () => {
+    setSidebarOpen(false);
   };
 
   return (
@@ -21,6 +29,7 @@ export default function MainLayout({ children }) {
       {/* =====================================================
           NAVBAR
       ===================================================== */}
+
       <div className="fixed left-0 right-0 top-0 z-50">
         <Navbar
           sidebarOpen={sidebarOpen}
@@ -29,13 +38,15 @@ export default function MainLayout({ children }) {
       </div>
 
       {/* =====================================================
-          MAIN AREA
+          PAGE AREA
       ===================================================== */}
-      <div className="flex pt-20 min-h-screen">
+
+      <div className="min-h-screen pt-20">
 
         {/* ===================================================
             SIDEBAR
         =================================================== */}
+
         <aside
           className={`
             fixed
@@ -48,11 +59,13 @@ export default function MainLayout({ children }) {
             border-r
             border-slate-200
             bg-white
-            dark:border-slate-800
-            dark:bg-slate-900
+            shadow-xl
             transition-transform
             duration-300
             ease-in-out
+
+            dark:border-slate-800
+            dark:bg-slate-900
 
             ${
               sidebarOpen
@@ -65,16 +78,38 @@ export default function MainLayout({ children }) {
         </aside>
 
         {/* ===================================================
+            MOBILE BACKDROP
+        =================================================== */}
+
+        {sidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close sidebar"
+            onClick={closeSidebar}
+            className="
+              fixed
+              inset-0
+              top-20
+              z-30
+              bg-black/50
+              backdrop-blur-[2px]
+              lg:hidden
+            "
+          />
+        )}
+
+        {/* ===================================================
             MAIN CONTENT
         =================================================== */}
+
         <main
           className={`
             min-h-[calc(100vh-5rem)]
             min-w-0
-            flex-1
             overflow-x-hidden
             transition-all
             duration-300
+            ease-in-out
 
             ${
               sidebarOpen
@@ -87,25 +122,6 @@ export default function MainLayout({ children }) {
             {children}
           </div>
         </main>
-
-        {/* ===================================================
-            MOBILE BACKDROP
-        =================================================== */}
-        {sidebarOpen && (
-          <button
-            type="button"
-            aria-label="Close sidebar"
-            onClick={() => setSidebarOpen(false)}
-            className="
-              fixed
-              inset-0
-              top-20
-              z-30
-              bg-black/50
-              lg:hidden
-            "
-          />
-        )}
 
       </div>
     </div>
